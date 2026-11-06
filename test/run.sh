@@ -5,9 +5,9 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 PROMETHEUS_BIN=${PROMETHEUS_BIN:-prometheus}
-PORT=${PROM_PORT:-19090}
+PORT=${PROM_PORT:-19091}
 TMP=$(mktemp -d)
-python3 test/fixture_server.py test/fixtures 18999 &
+python3 -I test/fixture_server.py test/fixtures 18998 &
 FIX=$!
 "$PROMETHEUS_BIN" --config.file=test/prometheus.yml --storage.tsdb.path="$TMP" \
   --web.listen-address=127.0.0.1:$PORT --log.level=warn &

@@ -63,6 +63,30 @@
       "targetBlank": false,
       "title": "AI observability",
       "type": "dashboards"
+    },
+    {
+      "title": "GPU (DCGM)",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/ai-obs-dcgm",
+      "keepTime": true,
+      "includeVars": false,
+      "targetBlank": false,
+      "asDropdown": false,
+      "tags": [],
+      "tooltip": "Related dashboard"
+    },
+    {
+      "title": "vLLM",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/ai-obs-vllm",
+      "keepTime": true,
+      "includeVars": false,
+      "targetBlank": false,
+      "asDropdown": false,
+      "tags": [],
+      "tooltip": "Related dashboard"
     }
   ],
   "panels": [
@@ -109,7 +133,8 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -181,7 +206,8 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -208,7 +234,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(ray_serve_num_http_error_requests_total{application=~\"$application\"}[$__rate_interval])) / sum(rate(ray_serve_num_http_requests_total{application=~\"$application\"}[$__rate_interval]))",
+          "expr": "(sum(rate(ray_serve_num_http_error_requests_total{application=~\"$application\"}[$__rate_interval])) or vector(0)) / sum(rate(ray_serve_num_http_requests_total{application=~\"$application\"}[$__rate_interval]))",
           "legendFormat": "__auto",
           "refId": "A",
           "range": true
@@ -239,13 +265,22 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 1000
+              },
+              {
+                "color": "red",
+                "value": 5000
               }
             ]
           },
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -318,7 +353,8 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -387,7 +423,8 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -452,7 +489,8 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -548,7 +586,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -631,7 +670,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -714,7 +754,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -832,7 +873,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -915,7 +957,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -998,7 +1041,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1081,7 +1125,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1189,7 +1234,8 @@
           },
           "mappings": [],
           "min": 0,
-          "max": 100
+          "max": 100,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1272,7 +1318,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1384,7 +1431,8 @@
             "cellOptions": {
               "type": "auto"
             }
-          }
+          },
+          "noValue": "no data"
         },
         "overrides": [
           {
@@ -1434,7 +1482,8 @@
             },
             "renameByName": {
               "Value": "Status"
-            }
+            },
+            "indexByName": {}
           }
         }
       ]

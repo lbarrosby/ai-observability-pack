@@ -8,56 +8,56 @@ scrape_configs:
   - job_name: llamacpp
     metrics_path: /llamacpp/metrics
     static_configs:
-      - targets: ['127.0.0.1:18999']
+      - targets: ['127.0.0.1:18998']
         labels:
           namespace: llm
           pod: llama-cpp-0
   - job_name: tei
     metrics_path: /tei/metrics
     static_configs:
-      - targets: ['127.0.0.1:18999']
+      - targets: ['127.0.0.1:18998']
         labels:
           namespace: embeddings
           pod: tei-embed-0
   - job_name: tei_rerank
     metrics_path: /tei_rerank/metrics
     static_configs:
-      - targets: ['127.0.0.1:18999']
+      - targets: ['127.0.0.1:18998']
         labels:
           namespace: embeddings
           pod: tei-rerank-0
   - job_name: volcano_controllers
     metrics_path: /volcano_controllers/metrics
     static_configs:
-      - targets: ['127.0.0.1:18999']
+      - targets: ['127.0.0.1:18998']
         labels:
           namespace: volcano-system
           pod: volcano-controllers-0
   - job_name: volcano_scheduler
     metrics_path: /volcano_scheduler/metrics
     static_configs:
-      - targets: ['127.0.0.1:18999']
+      - targets: ['127.0.0.1:18998']
         labels:
           namespace: volcano-system
           pod: volcano-scheduler-0
   - job_name: vllm_router
     metrics_path: /vllm_router/metrics
     static_configs:
-      - targets: ['127.0.0.1:18999']
+      - targets: ['127.0.0.1:18998']
         labels:
           namespace: llm
           pod: vllm-router-0
   - job_name: vllm
     metrics_path: /vllm/metrics
     static_configs:
-      - targets: ['127.0.0.1:18999']
+      - targets: ['127.0.0.1:18998']
         labels:
           namespace: llm
           pod: vllm-llama-0
   - job_name: sglang
     metrics_path: /sglang/metrics
     static_configs:
-      - targets: ['127.0.0.1:18999']
+      - targets: ['127.0.0.1:18998']
         labels:
           namespace: llm
           pod: sglang-0
@@ -65,49 +65,63 @@ scrape_configs:
     honor_labels: true
     metrics_path: /dcgm/metrics
     static_configs:
-      - targets: ['127.0.0.1:18999']
+      - targets: ['127.0.0.1:18998']
         labels:
           namespace: gpu-operator
           pod: nvidia-dcgm-exporter-0
   - job_name: triton
     metrics_path: /triton/metrics
     static_configs:
-      - targets: ['127.0.0.1:18999']
+      - targets: ['127.0.0.1:18998']
         labels:
           namespace: inference
           pod: triton-0
   - job_name: litellm
     metrics_path: /litellm/metrics
     static_configs:
-      - targets: ['127.0.0.1:18999']
+      - targets: ['127.0.0.1:18998']
         labels:
           namespace: litellm
           pod: litellm-0
   - job_name: ray_serve
     metrics_path: /ray_serve/metrics
     static_configs:
-      - targets: ['127.0.0.1:18999']
+      - targets: ['127.0.0.1:18998']
         labels:
           namespace: ray
           pod: raycluster-head-0
   - job_name: kserve
     metrics_path: /kserve/metrics
     static_configs:
-      - targets: ['127.0.0.1:18999']
+      - targets: ['127.0.0.1:18998']
         labels:
           namespace: models
           pod: sklearn-iris-predictor-00001-deployment-0
   - job_name: knative_queue
     metrics_path: /knative_queue/metrics
     static_configs:
-      - targets: ['127.0.0.1:18999']
+      - targets: ['127.0.0.1:18998']
         labels:
           namespace: models
           pod: llm-chat-predictor-00003-deployment-0
   - job_name: knative_autoscaler
     metrics_path: /knative_autoscaler/metrics
     static_configs:
-      - targets: ['127.0.0.1:18999']
+      - targets: ['127.0.0.1:18998']
         labels:
           namespace: knative-serving
           pod: autoscaler-0
+  - job_name: qdrant
+    metrics_path: /qdrant/metrics
+    static_configs:
+      - targets: ['127.0.0.1:18998']
+        labels:
+          namespace: vector-db
+          pod: qdrant-0
+  - job_name: weaviate
+    metrics_path: /weaviate/metrics
+    static_configs:
+      - targets: ['127.0.0.1:18998']
+        labels:
+          namespace: vector-db
+          pod: weaviate-0

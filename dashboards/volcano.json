@@ -63,6 +63,30 @@
       "targetBlank": false,
       "title": "AI observability",
       "type": "dashboards"
+    },
+    {
+      "title": "GPU (DCGM)",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/ai-obs-dcgm",
+      "keepTime": true,
+      "includeVars": false,
+      "targetBlank": false,
+      "asDropdown": false,
+      "tags": [],
+      "tooltip": "Related dashboard"
+    },
+    {
+      "title": "Ray Serve",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/ai-obs-ray-serve",
+      "keepTime": true,
+      "includeVars": false,
+      "targetBlank": false,
+      "asDropdown": false,
+      "tags": [],
+      "tooltip": "Related dashboard"
     }
   ],
   "panels": [
@@ -118,7 +142,8 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -191,7 +216,8 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -256,7 +282,8 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -321,7 +348,8 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -393,7 +421,8 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -457,7 +486,8 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -553,7 +583,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -658,7 +689,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -741,7 +773,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -824,7 +857,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -931,7 +965,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1036,7 +1071,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1141,7 +1177,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1235,7 +1272,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1340,7 +1378,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1407,7 +1446,8 @@
             "cellOptions": {
               "type": "auto"
             }
-          }
+          },
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1442,7 +1482,8 @@
             },
             "renameByName": {
               "Value": "Overused"
-            }
+            },
+            "indexByName": {}
           }
         }
       ]
@@ -1509,7 +1550,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1603,7 +1645,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1697,7 +1740,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1791,7 +1835,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },

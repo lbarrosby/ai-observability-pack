@@ -130,7 +130,7 @@ def vllm_router():
     d.stat("Incoming requests", f"sum({rate('vllm:num_incoming_requests_total', SM)})", "reqps",
            "Valid requests received by the router per second (also counts requests with no backend available).")
     d.stat("Error ratio",
-           f"sum({rate('vllm:request_errors_total', SM)}) / sum({rate('vllm:num_incoming_requests_total', SM)})",
+           f"(sum({rate('vllm:request_errors_total', SM)}) or vector(0)) / sum({rate('vllm:num_incoming_requests_total', SM)})",
            "percentunit", "Router request errors divided by incoming requests.",
            thresholds=[(0.01, "yellow"), (0.05, "red")])
     d.stat("Router latency p95",
@@ -364,7 +364,7 @@ def triton():
     d.stat("Successful requests/s", f"sum({rate('nv_inference_request_success', S)})", "reqps",
            "Successful inference requests per second (a batched request counts once).")
     d.stat("Failure ratio",
-           f"sum({rate('nv_inference_request_failure', S)}) / (sum({rate('nv_inference_request_success', S)}) + sum({rate('nv_inference_request_failure', S)}))",
+           f"(sum({rate('nv_inference_request_failure', S)}) or vector(0)) / (sum({rate('nv_inference_request_success', S)}) + (sum({rate('nv_inference_request_failure', S)}) or vector(0)))",
            "percentunit", "Failed requests over all requests.", thresholds=[(0.01, "yellow"), (0.05, "red")])
     d.stat("Inferences/s", f"sum({rate('nv_inference_count', S)})", "ops",
            "Inferences per second (a batch of n counts n).")
@@ -620,7 +620,7 @@ def kserve():
            "predict() calls per second in KServe Python model servers.")
     d.stat("Predict p95", q("0.95", "request_predict_seconds", "le", SM), "s", "p95 of model predict() time.")
     d.stat("Queue-proxy 5xx ratio",
-           f'sum(rate(kn_serving_invocation_duration_seconds_count{{{SQ}, http_response_status_code=~"5.."}}[$__rate_interval])) / sum(rate(kn_serving_invocation_duration_seconds_count{{{SQ}}}[$__rate_interval]))',
+           f'(sum(rate(kn_serving_invocation_duration_seconds_count{{{SQ}, http_response_status_code=~"5.."}}[$__rate_interval])) or vector(0)) / sum(rate(kn_serving_invocation_duration_seconds_count{{{SQ}}}[$__rate_interval]))',
            "percentunit", "Share of 5xx responses returned through the queue-proxy sidecar.",
            thresholds=[(0.01, "yellow"), (0.05, "red")])
     d.stat("Ready pods", f"sum(kn_revision_pods_count{{{SR}}})", "short", "Pods of the selected revisions.")
@@ -689,7 +689,7 @@ def ray_serve():
     d.stat("HTTP requests/s", f"sum(rate(ray_serve_num_http_requests_total{{{SA}}}[$__rate_interval]))", "reqps",
            "Requests processed by the Serve HTTP proxies.")
     d.stat("HTTP error ratio",
-           f"sum(rate(ray_serve_num_http_error_requests_total{{{SA}}}[$__rate_interval])) / sum(rate(ray_serve_num_http_requests_total{{{SA}}}[$__rate_interval]))",
+           f"(sum(rate(ray_serve_num_http_error_requests_total{{{SA}}}[$__rate_interval])) or vector(0)) / sum(rate(ray_serve_num_http_requests_total{{{SA}}}[$__rate_interval]))",
            "percentunit", "Non-2xx/3xx responses over all requests.", thresholds=[(0.01, "yellow"), (0.05, "red")])
     d.stat("HTTP latency p95", q("0.95", "ray_serve_http_request_latency_ms", "le", SA), "ms",
            "p95 end-to-end latency at the proxy.")
@@ -750,7 +750,7 @@ def litellm():
     d.stat("Requests/s", f"sum(rate(litellm_proxy_total_requests_metric_total{{{S}}}[$__rate_interval]))", "reqps",
            "Requests handled by the proxy.")
     d.stat("Failure ratio",
-           f"sum(rate(litellm_proxy_failed_requests_metric_total{{{S}}}[$__rate_interval])) / sum(rate(litellm_proxy_total_requests_metric_total{{{S}}}[$__rate_interval]))",
+           f"(sum(rate(litellm_proxy_failed_requests_metric_total{{{S}}}[$__rate_interval])) or vector(0)) / sum(rate(litellm_proxy_total_requests_metric_total{{{S}}}[$__rate_interval]))",
            "percentunit", "Failed proxy requests over all requests.", thresholds=[(0.01, "yellow"), (0.05, "red")])
     d.stat("Spend in range", f"sum(increase(litellm_spend_metric_total{{{S}}}[$__range]))", "currencyUSD",
            "Spend tracked by LiteLLM over the selected time range.", graph=False, decimals=2)
@@ -807,17 +807,210 @@ def litellm():
          "Remaining requests and tokens from the provider rate-limit headers. Near zero means 429s are coming.")
     return d
 
+ST5, ST4, SC5, NOTREADY = 'status=~"5.."', 'status=~"4.."', 'status_code=~"5.."', 'status!="READY"'
+
+
+# --------------------------------------------------------------------- Qdrant
+def qdrant():
+    S = 'namespace=~"$namespace", pod=~"$pod"'
+    SC = S + ', id=~"$collection"'
+    v = ns_pod_vars("app_info") + [
+        query_var("collection", "Collection", 'label_values(collection_points{namespace=~"$namespace", pod=~"$pod"}, id)')]
+    d = Dashboard("ai-obs-qdrant", "Qdrant",
+                  "Qdrant vector database (/metrics on the REST port 6333): REST traffic and latency per endpoint, "
+                  "collections and points, optimizer and update queues, replicas and shard transfers, snapshots and memory. "
+                  "Qdrant metric names have no prefix (app_info, collection_points...), so keep the namespace/pod filters on.",
+                  ["qdrant", "vector-db", "rag"], v, LINK)
+    d.no_value = "no data"
+    d.row("Overview")
+    d.stat("Collections", f"max({m('collections_total', S)})", "short", "Collections on the selected nodes.")
+    d.stat("Points", f"sum({m('collection_points', SC)})", "short", "Points stored in the selected collections.")
+    d.stat("REST requests", f"sum({rate('rest_responses_total', S)})", "reqps", "REST API requests per second.")
+    d.stat("REST 5xx ratio", f'(sum({rate("rest_responses_total", S, ST5)}) or vector(0)) / sum({rate("rest_responses_total", S)})',
+           "percentunit", "Share of REST responses with a 5xx status (4xx are client errors and not counted).",
+           thresholds=[(0.01, "yellow"), (0.05, "red")])
+    d.stat("REST p95", q("0.95", "rest_responses_duration_seconds", "le", S), "s",
+           "95th percentile REST response time across endpoints.", thresholds=[(0.1, "yellow"), (0.5, "red")])
+    d.stat("Dead replicas", f"max({m('collection_dead_replicas', S)})", "short",
+           "Shard replicas in Dead state. Anything above 0 means a node lost data for some shard and needs recovery.",
+           thresholds=[(1, "red")])
+
+    d.row("REST traffic")
+    d.ts("Requests by endpoint and status", f"sum by (endpoint, status) ({rate('rest_responses_total', S)})", "reqps",
+         "REST requests per endpoint template and HTTP status.", legend="{{status}} {{endpoint}}")
+    d.ts("Latency by endpoint (p95)", f"histogram_quantile(0.95, sum by (le, endpoint) ({rate('rest_responses_duration_seconds_bucket', S)}))",
+         "s", "95th percentile response time per endpoint. Search (points/query, points/search) is usually the one to watch.",
+         legend="{{endpoint}}")
+    d.ts("Max latency by endpoint", f"max by (endpoint) ({m('rest_responses_max_duration_seconds', S)})", "s",
+         "Slowest response seen per endpoint, as tracked by Qdrant itself (since start).", legend="{{endpoint}}")
+    d.ts("Client errors (4xx)", f'sum by (endpoint, status) ({rate("rest_responses_total", S, ST4)})', "reqps",
+         "400 = bad request (wrong vector size, bad filter), 404 = missing collection or point.", legend="{{status}} {{endpoint}}",
+         no_value="no 4xx")
+
+    d.row("Collections")
+    d.ts("Points per collection", f"sum by (id) ({m('collection_points', SC)})", "short",
+         "Points stored per collection.", legend="{{id}}")
+    d.ts("Running optimizations", f"sum by (id) ({m('collection_running_optimizations', SC)})", "short",
+         "Optimizer jobs (index building, segment merging) running per collection. Long-running optimizations slow down writes.",
+         legend="{{id}}")
+    d.ts("Update queue", [
+        (f"sum by (id) ({m('collection_update_queue_length', SC)})", "queued updates {{id}}"),
+        (f"sum by (id) ({m('collection_update_queue_deferred_points', SC)})", "deferred points {{id}}")], "short",
+         "Pending update operations and points deferred until indexing catches up.")
+    d.ts("Hardware usage by collection", [
+        (f"sum by (id) (rate(collection_hardware_metric_cpu{{{SC}}}[$__rate_interval]))", "cpu {{id}}")], "short",
+         "CPU units Qdrant attributes to each collection (collection_hardware_metric_cpu, a cumulative counter of internal CPU units).")
+    d.ts("Vector and payload I/O by collection", [
+        (f"sum by (id) (rate(collection_hardware_metric_vector_io_write{{{SC}}}[$__rate_interval]))", "vector write {{id}}"),
+        (f"sum by (id) (rate(collection_hardware_metric_vector_io_read{{{SC}}}[$__rate_interval]))", "vector read {{id}}"),
+        (f"sum by (id) (rate(collection_hardware_metric_payload_io_read{{{SC}}}[$__rate_interval]))", "payload read {{id}}")],
+         "Bps", "Bytes read and written for vectors and payloads per collection.")
+
+    d.row("Replication, snapshots and memory")
+    d.ts("Replicas", [(f"min({m('collection_active_replicas_min', S)})", "min active replicas"),
+                      (f"max({m('collection_dead_replicas', S)})", "dead replicas")], "short",
+         "Lowest number of active replicas of any shard, and dead replicas. In distributed mode a min below the replication factor means a degraded shard.")
+    d.ts("Shard transfers", [
+        (f"sum({m('collection_shard_transfer_incoming', S)})", "incoming"),
+        (f"sum({m('collection_shard_transfer_outgoing', S)})", "outgoing"),
+        (f"sum({m('collection_shard_transfer_failed', S)})", "failed")], "short",
+         "Shard transfers in progress (resharding, replica recovery) and failed ones.")
+    d.ts("Snapshots", [
+        (f"sum by (id) (increase(snapshot_created_total{{{SC}}}[$__range]))", "created {{id}}"),
+        (f"sum by (id) ({m('snapshot_creation_running', SC)})", "running {{id}}")], "short",
+         "Snapshots created in the selected range and snapshot jobs running.")
+    d.ts("Memory", [(f"max by (pod) ({m('memory_resident_bytes', S)})", "resident {{pod}}"),
+                    (f"max by (pod) ({m('memory_allocated_bytes', S)})", "allocated {{pod}}")], "bytes",
+         "Resident and allocator-reported memory. Vectors kept in RAM (on_disk=false) dominate this.")
+    return d
+
+
+# ------------------------------------------------------------------- Weaviate
+def weaviate():
+    S = 'namespace=~"$namespace", pod=~"$pod"'
+    SC = S + ', class_name=~"$collection"'
+    v = ns_pod_vars("weaviate_build_info") + [
+        query_var("collection", "Collection", 'label_values(vector_index_size{namespace=~"$namespace", pod=~"$pod"}, class_name)')]
+    d = Dashboard("ai-obs-weaviate", "Weaviate",
+                  "Weaviate vector database (PROMETHEUS_MONITORING_ENABLED=true, port 2112): HTTP API, queries, batch "
+                  "imports, vector index (HNSW) size and queues, LSM storage and shards.", ["weaviate", "vector-db", "rag"], v, LINK)
+    d.no_value = "no data"
+    d.row("Overview")
+    d.stat("Collections", f"max({m('weaviate_schema_collections', S)})", "short", "Collections (classes) in the schema.")
+    d.stat("Vectors indexed", f"sum({m('vector_index_size', SC)})", "short", "Vectors in the HNSW indexes of the selected collections.")
+    d.stat("Queries/s", f"sum({rate('queries_durations_ms_count', SC)})", "reqps", "Search queries per second (GraphQL Get, gRPC search).")
+    d.stat("Query p95", q("0.95", "queries_durations_ms", "le", SC), "ms", "95th percentile query time.",
+           thresholds=[(100, "yellow"), (500, "red")])
+    d.stat("HTTP 5xx ratio", f'(sum({rate("weaviate_http_request_duration_seconds_count", S, SC5)}) or vector(0)) / sum({rate("weaviate_http_request_duration_seconds_count", S)})',
+           "percentunit", "Share of REST/GraphQL HTTP requests answered with 5xx.", thresholds=[(0.01, "yellow"), (0.05, "red")])
+    d.stat("Shards not ready", f'sum({m("weaviate_index_shards_total", S, NOTREADY)})', "short",
+           "Shards loading or in another non-READY state.", thresholds=[(1, "orange")])
+
+    d.row("API")
+    d.ts("HTTP requests by route and status", f"sum by (route, status_code) ({rate('weaviate_http_request_duration_seconds_count', S)})",
+         "reqps", "REST and GraphQL requests per route.", legend="{{status_code}} {{route}}")
+    d.ts("HTTP latency by route (p95)", f"histogram_quantile(0.95, sum by (le, route) ({rate('weaviate_http_request_duration_seconds_bucket', S)}))",
+         "s", "95th percentile HTTP time per route.", legend="{{route}}")
+    d.ts("Requests by API and outcome", f"sum by (api, status) ({rate('requests_total', S)})", "reqps",
+         "Weaviate's own request counter (requests_total, exported as a gauge that only goes up): ok, user_error, server_error per API.",
+         legend="{{api}} {{status}}")
+    d.ts("In-flight HTTP requests", f"sum by (route) ({m('weaviate_http_requests_inflight', S)})", "short",
+         "Requests being served now per route.", legend="{{route}}")
+
+    d.row("Queries")
+    d.ts("Queries by collection and type", f"sum by (class_name, query_type) ({rate('queries_durations_ms_count', SC)})", "reqps",
+         "Query rate per collection and query type.", legend="{{class_name}} {{query_type}}")
+    d.ts("Query latency", pct(("0.5", "0.95", "0.99"), "queries_durations_ms", SC), "ms",
+         "Query time distribution across the selected collections.")
+    d.ts("Query dimensions", f"sum by (class_name, operation) ({rate('query_dimensions_total', SC)})", "short",
+         "Vector dimensions searched per second (nearVector, nearText, hybrid). Weaviate Cloud bills on this.",
+         legend="{{class_name}} {{operation}}")
+    d.ts("Batch import latency (p95)", f"histogram_quantile(0.95, sum by (le, operation) ({rate('batch_durations_ms_bucket', SC)}))",
+         "ms", "Time to store a batch, by phase (object_storage, vector_storage...).", legend="{{operation}}")
+
+    d.row("Vector index and storage")
+    d.ts("Vectors per collection", f"sum by (class_name) ({m('vector_index_size', SC)})", "short",
+         "HNSW index size per collection.", legend="{{class_name}}")
+    d.ts("Tombstones", f"sum by (class_name) ({m('vector_index_tombstones', SC)})", "short",
+         "Deleted vectors not yet cleaned from the HNSW graph. A growing number slows queries until cleanup runs.",
+         legend="{{class_name}}")
+    d.ts("Objects imported", f"sum by (class_name) ({rate('batch_objects_processed_total', SC)})", "ops",
+         "Objects processed by batch imports per second.", legend="{{class_name}}")
+    d.ts("LSM memtable size", f"sum by (class_name, strategy) ({m('lsm_memtable_size', SC)})", "bytes",
+         "Bytes held in LSM memtables before they are flushed to disk segments.", legend="{{class_name}} {{strategy}}")
+    d.ts("Shards by state", f"sum by (state) ({m('weaviate_shards', S)})", "short",
+         "Shards loaded, loading, unloaded (lazy loading of tenants or large collections).", legend="{{state}}")
+    d.ts("Process memory", f"max by (pod) ({m('process_resident_memory_bytes', S, '')})", "bytes",
+         "Resident memory of Weaviate. HNSW graphs and vector cache live in memory.", legend="{{pod}}")
+    return d
+
 
 BUILDERS = {
     "vllm": vllm, "vllm-production-stack-router": vllm_router, "sglang": sglang, "llama-cpp": llamacpp,
     "hf-tei": tei, "triton": triton, "nvidia-dcgm": dcgm, "volcano": volcano, "kserve-knative": kserve,
-    "ray-serve": ray_serve, "litellm": litellm,
+    "ray-serve": ray_serve, "litellm": litellm, "qdrant": qdrant, "weaviate": weaviate,
 }
+
+# Dashboards a user typically jumps to from each one (shown as links next to the pack dropdown).
+RELATED = {
+    "vllm": ["nvidia-dcgm", "vllm-production-stack-router", "litellm"],
+    "vllm-production-stack-router": ["vllm", "litellm"],
+    "sglang": ["nvidia-dcgm", "litellm"],
+    "llama-cpp": ["nvidia-dcgm", "litellm"],
+    "hf-tei": ["nvidia-dcgm", "qdrant", "weaviate"],
+    "triton": ["nvidia-dcgm", "kserve-knative"],
+    "nvidia-dcgm": ["vllm", "sglang", "triton", "volcano"],
+    "volcano": ["nvidia-dcgm", "ray-serve"],
+    "kserve-knative": ["nvidia-dcgm", "vllm", "triton"],
+    "ray-serve": ["nvidia-dcgm", "vllm"],
+    "litellm": ["vllm", "vllm-production-stack-router", "sglang"],
+    "qdrant": ["hf-tei", "weaviate"],
+    "weaviate": ["hf-tei", "qdrant"],
+}
+# Latency and health stats that had no thresholds: (dashboard, stat title) -> steps
+THRESHOLDS = {
+    ("hf-tei", "Request p95"): [(0.5, "yellow"), (2, "red")],
+    ("kserve-knative", "Predict p95"): [(0.5, "yellow"), (2, "red")],
+    ("litellm", "Total latency p95"): [(10, "yellow"), (30, "red")],
+    ("ray-serve", "HTTP latency p95"): [(1000, "yellow"), (5000, "red")],
+    ("triton", "Avg request latency"): [(0.5, "yellow"), (2, "red")],
+    ("vllm-production-stack-router", "Router latency p95"): [(10, "yellow"), (30, "red")],
+}
+# Stats where 0 is the bad value (red below 1)
+ZERO_IS_BAD = {("vllm-production-stack-router", "Healthy backends"), ("kserve-knative", "Ready pods")}
+
+
+def polish(name, dash):
+    """Pack-wide consistency applied after each builder: related links, missing thresholds, empty-state text."""
+    j = dash.to_json()
+    j["links"] = list(j["links"])  # LINK is shared by every builder: never append to it in place
+    uids = {n: BUILDERS[n]().uid for n in RELATED.get(name, [])}
+    for n, uid in uids.items():
+        j["links"].append({"title": TITLES[n], "type": "link", "icon": "dashboard", "url": f"/d/{uid}",
+                           "keepTime": True, "includeVars": False, "targetBlank": False, "asDropdown": False,
+                           "tags": [], "tooltip": "Related dashboard"})
+    for p in j["panels"]:
+        if p["type"] == "row":
+            continue
+        p["fieldConfig"]["defaults"].setdefault("noValue", "no data")
+        steps = p["fieldConfig"]["defaults"].get("thresholds", {}).get("steps")
+        if (name, p["title"]) in THRESHOLDS and steps is not None:
+            p["fieldConfig"]["defaults"]["thresholds"]["steps"] = [{"color": "green", "value": None}] + [
+                {"color": c, "value": v} for v, c in THRESHOLDS[(name, p["title"])]]
+        if (name, p["title"]) in ZERO_IS_BAD and steps is not None:
+            p["fieldConfig"]["defaults"]["thresholds"]["steps"] = [{"color": "red", "value": None}, {"color": "green", "value": 1}]
+    return j
+
+
+TITLES = {"vllm": "vLLM", "vllm-production-stack-router": "vLLM router", "sglang": "SGLang", "llama-cpp": "llama.cpp",
+          "hf-tei": "TEI", "triton": "Triton", "nvidia-dcgm": "GPU (DCGM)", "volcano": "Volcano",
+          "kserve-knative": "KServe / Knative", "ray-serve": "Ray Serve", "litellm": "LiteLLM", "qdrant": "Qdrant",
+          "weaviate": "Weaviate"}
 
 if __name__ == "__main__":
     os.makedirs(OUT, exist_ok=True)
     for name, fn in BUILDERS.items():
         with open(os.path.join(OUT, f"{name}.json"), "w") as f:
-            json.dump(fn().to_json(), f, indent=2)
+            json.dump(polish(name, fn()), f, indent=2)
             f.write("\n")
         print("wrote", name)

@@ -57,6 +57,42 @@
       "targetBlank": false,
       "title": "AI observability",
       "type": "dashboards"
+    },
+    {
+      "title": "GPU (DCGM)",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/ai-obs-dcgm",
+      "keepTime": true,
+      "includeVars": false,
+      "targetBlank": false,
+      "asDropdown": false,
+      "tags": [],
+      "tooltip": "Related dashboard"
+    },
+    {
+      "title": "Qdrant",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/ai-obs-qdrant",
+      "keepTime": true,
+      "includeVars": false,
+      "targetBlank": false,
+      "asDropdown": false,
+      "tags": [],
+      "tooltip": "Related dashboard"
+    },
+    {
+      "title": "Weaviate",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/ai-obs-weaviate",
+      "keepTime": true,
+      "includeVars": false,
+      "targetBlank": false,
+      "asDropdown": false,
+      "tags": [],
+      "tooltip": "Related dashboard"
     }
   ],
   "panels": [
@@ -103,7 +139,8 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -177,7 +214,8 @@
           },
           "mappings": [],
           "min": 0,
-          "max": 1
+          "max": 1,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -245,7 +283,8 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -318,7 +357,8 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -376,13 +416,22 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 0.5
+              },
+              {
+                "color": "red",
+                "value": 2
               }
             ]
           },
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -447,7 +496,8 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -543,7 +593,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -626,7 +677,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -709,7 +761,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -803,7 +856,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -921,7 +975,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1026,7 +1081,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1120,7 +1176,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1214,7 +1271,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },

@@ -69,6 +69,42 @@
       "targetBlank": false,
       "title": "AI observability",
       "type": "dashboards"
+    },
+    {
+      "title": "vLLM",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/ai-obs-vllm",
+      "keepTime": true,
+      "includeVars": false,
+      "targetBlank": false,
+      "asDropdown": false,
+      "tags": [],
+      "tooltip": "Related dashboard"
+    },
+    {
+      "title": "vLLM router",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/ai-obs-vllm-router",
+      "keepTime": true,
+      "includeVars": false,
+      "targetBlank": false,
+      "asDropdown": false,
+      "tags": [],
+      "tooltip": "Related dashboard"
+    },
+    {
+      "title": "SGLang",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/ai-obs-sglang",
+      "keepTime": true,
+      "includeVars": false,
+      "targetBlank": false,
+      "asDropdown": false,
+      "tags": [],
+      "tooltip": "Related dashboard"
     }
   ],
   "panels": [
@@ -115,7 +151,8 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -187,7 +224,8 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -214,7 +252,7 @@
             "uid": "${DS_PROMETHEUS}"
           },
           "editorMode": "code",
-          "expr": "sum(rate(litellm_proxy_failed_requests_metric_total{requested_model=~\"$model\", team_alias=~\"$team\"}[$__rate_interval])) / sum(rate(litellm_proxy_total_requests_metric_total{requested_model=~\"$model\", team_alias=~\"$team\"}[$__rate_interval]))",
+          "expr": "(sum(rate(litellm_proxy_failed_requests_metric_total{requested_model=~\"$model\", team_alias=~\"$team\"}[$__rate_interval])) or vector(0)) / sum(rate(litellm_proxy_total_requests_metric_total{requested_model=~\"$model\", team_alias=~\"$team\"}[$__rate_interval]))",
           "legendFormat": "__auto",
           "refId": "A",
           "range": true
@@ -252,7 +290,8 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "decimals": 2
+          "decimals": 2,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -316,7 +355,8 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -374,13 +414,22 @@
               {
                 "color": "green",
                 "value": null
+              },
+              {
+                "color": "yellow",
+                "value": 10
+              },
+              {
+                "color": "red",
+                "value": 30
               }
             ]
           },
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -449,7 +498,8 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -545,7 +595,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -628,7 +679,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -711,7 +763,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -794,7 +847,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -890,7 +944,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -995,7 +1050,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1078,7 +1134,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1174,7 +1231,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1268,7 +1326,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1332,7 +1391,8 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1364,7 +1424,8 @@
           "expr": "sum by (team_alias) (increase(litellm_spend_metric_total{requested_model=~\"$model\", team_alias=~\"$team\"}[$__range]))",
           "legendFormat": "{{team_alias}}",
           "refId": "A",
-          "range": true
+          "range": false,
+          "instant": true
         }
       ]
     },
@@ -1398,7 +1459,8 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1430,7 +1492,8 @@
           "expr": "topk(10, sum by (api_key_alias) (increase(litellm_spend_metric_total{requested_model=~\"$model\", team_alias=~\"$team\"}[$__range])))",
           "legendFormat": "{{api_key_alias}}",
           "refId": "A",
-          "range": true
+          "range": false,
+          "instant": true
         }
       ]
     },
@@ -1477,7 +1540,8 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1509,7 +1573,8 @@
           "expr": "max by (team_alias) (litellm_remaining_team_budget_metric)",
           "legendFormat": "{{team_alias}}",
           "refId": "A",
-          "range": true
+          "range": false,
+          "instant": true
         }
       ]
     },
@@ -1543,7 +1608,8 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1575,7 +1641,8 @@
           "expr": "max by (api_key_alias) (litellm_remaining_api_key_budget_metric)",
           "legendFormat": "{{api_key_alias}}",
           "refId": "A",
-          "range": true
+          "range": false,
+          "instant": true
         }
       ]
     },
@@ -1630,7 +1697,8 @@
             "cellOptions": {
               "type": "auto"
             }
-          }
+          },
+          "noValue": "no data"
         },
         "overrides": [
           {
@@ -1680,7 +1748,8 @@
             },
             "renameByName": {
               "Value": "State"
-            }
+            },
+            "indexByName": {}
           }
         }
       ]
@@ -1734,7 +1803,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },

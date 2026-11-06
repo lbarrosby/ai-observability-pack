@@ -1,102 +1,86 @@
-# HELP request_predict_seconds synthetic
-# TYPE request_predict_seconds histogram
-request_predict_seconds_bucket{model_name="sklearn-iris",le="0.01"} 2563
-request_predict_seconds_bucket{model_name="sklearn-iris",le="0.025"} 6011
-request_predict_seconds_bucket{model_name="sklearn-iris",le="0.05"} 7510
-request_predict_seconds_bucket{model_name="sklearn-iris",le="0.1"} 7936
-request_predict_seconds_bucket{model_name="sklearn-iris",le="0.25"} 7998
-request_predict_seconds_bucket{model_name="sklearn-iris",le="0.5"} 7999
-request_predict_seconds_bucket{model_name="sklearn-iris",le="1"} 7999
-request_predict_seconds_bucket{model_name="sklearn-iris",le="2.5"} 7999
-request_predict_seconds_bucket{model_name="sklearn-iris",le="5"} 7999
-request_predict_seconds_bucket{model_name="sklearn-iris",le="10"} 7999
-request_predict_seconds_bucket{model_name="sklearn-iris",le="20"} 8000
-request_predict_seconds_bucket{model_name="sklearn-iris",le="40"} 8000
-request_predict_seconds_bucket{model_name="sklearn-iris",le="80"} 8000
-request_predict_seconds_bucket{model_name="sklearn-iris",le="+Inf"} 8000
-request_predict_seconds_sum{model_name="sklearn-iris"} 160.0
-request_predict_seconds_count{model_name="sklearn-iris"} 8000
-request_predict_seconds_bucket{model_name="llm-chat",le="0.01"} 0
-request_predict_seconds_bucket{model_name="llm-chat",le="0.025"} 0
-request_predict_seconds_bucket{model_name="llm-chat",le="0.05"} 0
-request_predict_seconds_bucket{model_name="llm-chat",le="0.1"} 0
-request_predict_seconds_bucket{model_name="llm-chat",le="0.25"} 6
-request_predict_seconds_bucket{model_name="llm-chat",le="0.5"} 53
-request_predict_seconds_bucket{model_name="llm-chat",le="1"} 219
-request_predict_seconds_bucket{model_name="llm-chat",le="2.5"} 606
-request_predict_seconds_bucket{model_name="llm-chat",le="5"} 815
-request_predict_seconds_bucket{model_name="llm-chat",le="10"} 886
-request_predict_seconds_bucket{model_name="llm-chat",le="20"} 898
-request_predict_seconds_bucket{model_name="llm-chat",le="40"} 899
-request_predict_seconds_bucket{model_name="llm-chat",le="80"} 899
-request_predict_seconds_bucket{model_name="llm-chat",le="+Inf"} 900
-request_predict_seconds_sum{model_name="llm-chat"} 2160.0
-request_predict_seconds_count{model_name="llm-chat"} 900
-# HELP request_preprocess_seconds synthetic
+# HELP python_gc_objects_collected_total Objects collected during gc
+# TYPE python_gc_objects_collected_total counter
+python_gc_objects_collected_total{generation="0"} 813.0
+python_gc_objects_collected_total{generation="1"} 65.0
+python_gc_objects_collected_total{generation="2"} 10.0
+# HELP python_gc_objects_uncollectable_total Uncollectable objects found during GC
+# TYPE python_gc_objects_uncollectable_total counter
+python_gc_objects_uncollectable_total{generation="0"} 0.0
+python_gc_objects_uncollectable_total{generation="1"} 0.0
+python_gc_objects_uncollectable_total{generation="2"} 0.0
+# HELP python_gc_collections_total Number of times this generation was collected
+# TYPE python_gc_collections_total counter
+python_gc_collections_total{generation="0"} 280.0
+python_gc_collections_total{generation="1"} 25.0
+python_gc_collections_total{generation="2"} 2.0
+# HELP python_info Python platform information
+# TYPE python_info gauge
+python_info{implementation="CPython",major="3",minor="12",patchlevel="13",version="3.12.13"} 1.0
+# HELP request_preprocess_seconds pre-process request latency
 # TYPE request_preprocess_seconds histogram
-request_preprocess_seconds_bucket{model_name="sklearn-iris",le="0.01"} 7936
-request_preprocess_seconds_bucket{model_name="sklearn-iris",le="0.025"} 7998
-request_preprocess_seconds_bucket{model_name="sklearn-iris",le="0.05"} 7999
-request_preprocess_seconds_bucket{model_name="sklearn-iris",le="0.1"} 7999
-request_preprocess_seconds_bucket{model_name="sklearn-iris",le="0.25"} 7999
-request_preprocess_seconds_bucket{model_name="sklearn-iris",le="0.5"} 7999
-request_preprocess_seconds_bucket{model_name="sklearn-iris",le="1"} 7999
-request_preprocess_seconds_bucket{model_name="sklearn-iris",le="2.5"} 8000
-request_preprocess_seconds_bucket{model_name="sklearn-iris",le="5"} 8000
-request_preprocess_seconds_bucket{model_name="sklearn-iris",le="10"} 8000
-request_preprocess_seconds_bucket{model_name="sklearn-iris",le="20"} 8000
-request_preprocess_seconds_bucket{model_name="sklearn-iris",le="40"} 8000
-request_preprocess_seconds_bucket{model_name="sklearn-iris",le="80"} 8000
-request_preprocess_seconds_bucket{model_name="sklearn-iris",le="+Inf"} 8000
-request_preprocess_seconds_sum{model_name="sklearn-iris"} 16.0
-request_preprocess_seconds_count{model_name="sklearn-iris"} 8000
-request_preprocess_seconds_bucket{model_name="llm-chat",le="0.01"} 589
-request_preprocess_seconds_bucket{model_name="llm-chat",le="0.025"} 844
-request_preprocess_seconds_bucket{model_name="llm-chat",le="0.05"} 892
-request_preprocess_seconds_bucket{model_name="llm-chat",le="0.1"} 899
-request_preprocess_seconds_bucket{model_name="llm-chat",le="0.25"} 899
-request_preprocess_seconds_bucket{model_name="llm-chat",le="0.5"} 899
-request_preprocess_seconds_bucket{model_name="llm-chat",le="1"} 899
-request_preprocess_seconds_bucket{model_name="llm-chat",le="2.5"} 899
-request_preprocess_seconds_bucket{model_name="llm-chat",le="5"} 899
-request_preprocess_seconds_bucket{model_name="llm-chat",le="10"} 900
-request_preprocess_seconds_bucket{model_name="llm-chat",le="20"} 900
-request_preprocess_seconds_bucket{model_name="llm-chat",le="40"} 900
-request_preprocess_seconds_bucket{model_name="llm-chat",le="80"} 900
-request_preprocess_seconds_bucket{model_name="llm-chat",le="+Inf"} 900
-request_preprocess_seconds_sum{model_name="llm-chat"} 9.0
-request_preprocess_seconds_count{model_name="llm-chat"} 900
-# HELP request_postprocess_seconds synthetic
+request_preprocess_seconds_bucket{le="0.005",model_name="sklearn-iris"} 145.0
+request_preprocess_seconds_bucket{le="0.01",model_name="sklearn-iris"} 153.0
+request_preprocess_seconds_bucket{le="0.025",model_name="sklearn-iris"} 153.0
+request_preprocess_seconds_bucket{le="0.05",model_name="sklearn-iris"} 153.0
+request_preprocess_seconds_bucket{le="0.075",model_name="sklearn-iris"} 153.0
+request_preprocess_seconds_bucket{le="0.1",model_name="sklearn-iris"} 153.0
+request_preprocess_seconds_bucket{le="0.25",model_name="sklearn-iris"} 153.0
+request_preprocess_seconds_bucket{le="0.5",model_name="sklearn-iris"} 153.0
+request_preprocess_seconds_bucket{le="0.75",model_name="sklearn-iris"} 153.0
+request_preprocess_seconds_bucket{le="1.0",model_name="sklearn-iris"} 153.0
+request_preprocess_seconds_bucket{le="2.5",model_name="sklearn-iris"} 153.0
+request_preprocess_seconds_bucket{le="5.0",model_name="sklearn-iris"} 153.0
+request_preprocess_seconds_bucket{le="7.5",model_name="sklearn-iris"} 153.0
+request_preprocess_seconds_bucket{le="10.0",model_name="sklearn-iris"} 153.0
+request_preprocess_seconds_bucket{le="+Inf",model_name="sklearn-iris"} 153.0
+request_preprocess_seconds_count{model_name="sklearn-iris"} 153.0
+request_preprocess_seconds_sum{model_name="sklearn-iris"} 0.47555750608444214
+# HELP request_preprocess_seconds_created pre-process request latency
+# TYPE request_preprocess_seconds_created gauge
+request_preprocess_seconds_created{model_name="sklearn-iris"} 1.793938401422079e+09
+# HELP request_postprocess_seconds post-process request latency
 # TYPE request_postprocess_seconds histogram
-request_postprocess_seconds_bucket{model_name="sklearn-iris",le="0.01"} 7995
-request_postprocess_seconds_bucket{model_name="sklearn-iris",le="0.025"} 7999
-request_postprocess_seconds_bucket{model_name="sklearn-iris",le="0.05"} 7999
-request_postprocess_seconds_bucket{model_name="sklearn-iris",le="0.1"} 7999
-request_postprocess_seconds_bucket{model_name="sklearn-iris",le="0.25"} 7999
-request_postprocess_seconds_bucket{model_name="sklearn-iris",le="0.5"} 7999
-request_postprocess_seconds_bucket{model_name="sklearn-iris",le="1"} 8000
-request_postprocess_seconds_bucket{model_name="sklearn-iris",le="2.5"} 8000
-request_postprocess_seconds_bucket{model_name="sklearn-iris",le="5"} 8000
-request_postprocess_seconds_bucket{model_name="sklearn-iris",le="10"} 8000
-request_postprocess_seconds_bucket{model_name="sklearn-iris",le="20"} 8000
-request_postprocess_seconds_bucket{model_name="sklearn-iris",le="40"} 8000
-request_postprocess_seconds_bucket{model_name="sklearn-iris",le="80"} 8000
-request_postprocess_seconds_bucket{model_name="sklearn-iris",le="+Inf"} 8000
-request_postprocess_seconds_sum{model_name="sklearn-iris"} 8.0
-request_postprocess_seconds_count{model_name="sklearn-iris"} 8000
-request_postprocess_seconds_bucket{model_name="llm-chat",le="0.01"} 807
-request_postprocess_seconds_bucket{model_name="llm-chat",le="0.025"} 892
-request_postprocess_seconds_bucket{model_name="llm-chat",le="0.05"} 899
-request_postprocess_seconds_bucket{model_name="llm-chat",le="0.1"} 899
-request_postprocess_seconds_bucket{model_name="llm-chat",le="0.25"} 899
-request_postprocess_seconds_bucket{model_name="llm-chat",le="0.5"} 899
-request_postprocess_seconds_bucket{model_name="llm-chat",le="1"} 899
-request_postprocess_seconds_bucket{model_name="llm-chat",le="2.5"} 899
-request_postprocess_seconds_bucket{model_name="llm-chat",le="5"} 900
-request_postprocess_seconds_bucket{model_name="llm-chat",le="10"} 900
-request_postprocess_seconds_bucket{model_name="llm-chat",le="20"} 900
-request_postprocess_seconds_bucket{model_name="llm-chat",le="40"} 900
-request_postprocess_seconds_bucket{model_name="llm-chat",le="80"} 900
-request_postprocess_seconds_bucket{model_name="llm-chat",le="+Inf"} 900
-request_postprocess_seconds_sum{model_name="llm-chat"} 4.5
-request_postprocess_seconds_count{model_name="llm-chat"} 900
+request_postprocess_seconds_bucket{le="0.005",model_name="sklearn-iris"} 120.0
+request_postprocess_seconds_bucket{le="0.01",model_name="sklearn-iris"} 120.0
+request_postprocess_seconds_bucket{le="0.025",model_name="sklearn-iris"} 120.0
+request_postprocess_seconds_bucket{le="0.05",model_name="sklearn-iris"} 120.0
+request_postprocess_seconds_bucket{le="0.075",model_name="sklearn-iris"} 120.0
+request_postprocess_seconds_bucket{le="0.1",model_name="sklearn-iris"} 120.0
+request_postprocess_seconds_bucket{le="0.25",model_name="sklearn-iris"} 120.0
+request_postprocess_seconds_bucket{le="0.5",model_name="sklearn-iris"} 120.0
+request_postprocess_seconds_bucket{le="0.75",model_name="sklearn-iris"} 120.0
+request_postprocess_seconds_bucket{le="1.0",model_name="sklearn-iris"} 120.0
+request_postprocess_seconds_bucket{le="2.5",model_name="sklearn-iris"} 120.0
+request_postprocess_seconds_bucket{le="5.0",model_name="sklearn-iris"} 120.0
+request_postprocess_seconds_bucket{le="7.5",model_name="sklearn-iris"} 120.0
+request_postprocess_seconds_bucket{le="10.0",model_name="sklearn-iris"} 120.0
+request_postprocess_seconds_bucket{le="+Inf",model_name="sklearn-iris"} 120.0
+request_postprocess_seconds_count{model_name="sklearn-iris"} 120.0
+request_postprocess_seconds_sum{model_name="sklearn-iris"} 0.0012472012313082814
+# HELP request_postprocess_seconds_created post-process request latency
+# TYPE request_postprocess_seconds_created gauge
+request_postprocess_seconds_created{model_name="sklearn-iris"} 1.793938401437262e+09
+# HELP request_predict_seconds predict request latency
+# TYPE request_predict_seconds histogram
+request_predict_seconds_bucket{le="0.005",model_name="sklearn-iris"} 0.0
+request_predict_seconds_bucket{le="0.01",model_name="sklearn-iris"} 16.0
+request_predict_seconds_bucket{le="0.025",model_name="sklearn-iris"} 68.0
+request_predict_seconds_bucket{le="0.05",model_name="sklearn-iris"} 150.0
+request_predict_seconds_bucket{le="0.075",model_name="sklearn-iris"} 150.0
+request_predict_seconds_bucket{le="0.1",model_name="sklearn-iris"} 150.0
+request_predict_seconds_bucket{le="0.25",model_name="sklearn-iris"} 150.0
+request_predict_seconds_bucket{le="0.5",model_name="sklearn-iris"} 150.0
+request_predict_seconds_bucket{le="0.75",model_name="sklearn-iris"} 150.0
+request_predict_seconds_bucket{le="1.0",model_name="sklearn-iris"} 150.0
+request_predict_seconds_bucket{le="2.5",model_name="sklearn-iris"} 150.0
+request_predict_seconds_bucket{le="5.0",model_name="sklearn-iris"} 150.0
+request_predict_seconds_bucket{le="7.5",model_name="sklearn-iris"} 150.0
+request_predict_seconds_bucket{le="10.0",model_name="sklearn-iris"} 150.0
+request_predict_seconds_bucket{le="+Inf",model_name="sklearn-iris"} 150.0
+request_predict_seconds_count{model_name="sklearn-iris"} 150.0
+request_predict_seconds_sum{model_name="sklearn-iris"} 3.822456786641851
+# HELP request_predict_seconds_created predict request latency
+# TYPE request_predict_seconds_created gauge
+request_predict_seconds_created{model_name="sklearn-iris"} 1.7939384014266539e+09
+# HELP request_explain_seconds explain request latency
+# TYPE request_explain_seconds histogram

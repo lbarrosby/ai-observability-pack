@@ -2,7 +2,8 @@
 
 Only metric names, types and label names documented in each project's source
 code or docs are used; values are made up. Real captures (llama.cpp, TEI,
-Volcano, vLLM production-stack router) are not generated here.
+Volcano, vLLM production-stack router, KServe Python model server, Qdrant,
+Weaviate) are not generated here.
 """
 import math
 import os
@@ -188,12 +189,7 @@ f.g("ray_serve_autoscaling_desired_replicas", "gauge", [({"deployment": d, "appl
 f.g("ray_serve_deployment_status", "gauge", [({"deployment": d, "application": a}, 6) for a, d, k in A])
 f.save("ray_serve.txt")
 
-# KServe model server (Python runtime) + Knative >= 1.19 queue-proxy/autoscaler (OTel -> Prometheus names)
-f = F()
-f.h("request_predict_seconds", LAT, [({"model_name": "sklearn-iris"}, 8000, 0.02), ({"model_name": "llm-chat"}, 900, 2.4)])
-f.h("request_preprocess_seconds", LAT, [({"model_name": "sklearn-iris"}, 8000, 0.002), ({"model_name": "llm-chat"}, 900, 0.01)])
-f.h("request_postprocess_seconds", LAT, [({"model_name": "sklearn-iris"}, 8000, 0.001), ({"model_name": "llm-chat"}, 900, 0.005)])
-f.save("kserve.txt")
+# Knative >= 1.19 queue-proxy/autoscaler (OTel -> Prometheus names)
 f = F()
 K = [("sklearn-iris-predictor-00001", "sklearn-iris-predictor"), ("llm-chat-predictor-00003", "llm-chat-predictor")]
 f.g("kn_serving_queue_depth", "gauge", [({}, 1)])

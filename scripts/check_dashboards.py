@@ -5,7 +5,9 @@
   python3 scripts/check_dashboards.py --prometheus http://localhost:9090
 
 Lint rules: valid JSON, unique uid and panel ids, every panel has a description,
-a unit and the ${DS_PROMETHEUS} datasource, no overlapping panels.
+a unit and the ${DS_PROMETHEUS} datasource, no overlapping panels, the first row is
+an "Overview" row of at least three stat panels, panel links point to a dashboard
+of the pack.
 Query check: variables are replaced by their "All" value, $__rate_interval by 1m,
 $__range by 15m; a query fails on a Prometheus error and warns on an empty result.
 """
@@ -29,8 +31,17 @@ def panels(d):
             yield sub
 
 
-def lint(path, d, uids):
+def lint(path, d, uids, all_uids):
     errs = []
+    top = [p for p in d["panels"] if p["gridPos"]["y"] <= 5]
+    if not d["panels"] or d["panels"][0].get("type") != "row" or d["panels"][0]["title"] != "Overview":
+        errs.append("first row is not 'Overview'")
+    if sum(1 for p in top if p["type"] == "stat") < 3:
+        errs.append("fewer than 3 stat panels in the Overview row")
+    for ln in d.get("links", []):
+        m = re.match(r"^/d/([\w-]+)", ln.get("url", ""))
+        if m and m.group(1) not in all_uids:
+            errs.append(f"dashboard link '{ln['title']}' points to unknown dashboard {m.group(1)}")
     if d["uid"] in uids:
         errs.append(f"duplicate uid {d['uid']}")
     uids.add(d["uid"])
@@ -51,6 +62,10 @@ def lint(path, d, uids):
             break
         if p["type"] == "row":
             continue
+        for ln in p.get("links", []):
+            m = re.match(r"^/d/([\w-]+)", ln.get("url", ""))
+            if m and m.group(1) not in all_uids:
+                errs.append(f"panel '{p['title']}' links to unknown dashboard {m.group(1)}")
         if not p.get("description"):
             errs.append(f"panel '{p['title']}' has no description")
         if p.get("datasource", {}).get("uid") != "${DS_PROMETHEUS}":
@@ -78,7 +93,11 @@ def run_query(base, expr):
         body = json.load(e)
     if body.get("status") != "success":
         return "error", body.get("error", "unknown error")
-    return ("ok" if body["data"]["result"] else "empty"), len(body["data"]["result"])
+    res = body["data"]["result"]
+    if isinstance(res, list):
+        # NaN (e.g. histogram_quantile over zero observations) renders as an empty panel too
+        res = [r for r in res if r.get("value", [0, "NaN"])[1] not in ("NaN", "+Inf", "-Inf")]
+    return ("ok" if res else "empty"), len(res)
 
 
 def main():
@@ -88,17 +107,23 @@ def main():
     a = ap.parse_args()
     files = a.files or sorted(glob.glob(os.path.join(DASH_DIR, "*.json")))
     failed, uids, total, empty = False, set(), 0, []
+    all_uids = set()
+    for path in sorted(glob.glob(os.path.join(DASH_DIR, "*.json"))):
+        with open(path) as f:
+            all_uids.add(json.load(f)["uid"])
     for path in files:
         with open(path) as f:
             d = json.load(f)
-        errs = lint(path, d, uids)
+        errs = lint(path, d, uids, all_uids)
         for e in errs:
             print(f"LINT {os.path.basename(path)}: {e}")
         failed |= bool(errs)
         if not a.prometheus:
             continue
         variables = {v["name"]: v.get("allValue", ".*") for v in d["templating"]["list"] if v["type"] == "query"}
-        queries = [(p["title"], t["expr"]) for p in panels(d) for t in p.get("targets", [])]
+        variables.update({v["name"]: v["current"]["value"] for v in d["templating"]["list"] if v["type"] in ("custom", "textbox")})
+        queries = [(p["title"] + (f" [{t.get('legendFormat') or t['refId']}]" if len(p["targets"]) > 1 else ""), t["expr"])
+                   for p in panels(d) for t in p.get("targets", [])]
         queries += [(f"variable {v['name']}", re.sub(r"^label_values\((.*),\s*[\w]+\)$", r"\1", v["definition"]))
                     for v in d["templating"]["list"] if v["type"] == "query"]
         for title, expr in queries:

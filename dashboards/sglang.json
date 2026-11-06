@@ -57,6 +57,30 @@
       "targetBlank": false,
       "title": "AI observability",
       "type": "dashboards"
+    },
+    {
+      "title": "GPU (DCGM)",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/ai-obs-dcgm",
+      "keepTime": true,
+      "includeVars": false,
+      "targetBlank": false,
+      "asDropdown": false,
+      "tags": [],
+      "tooltip": "Related dashboard"
+    },
+    {
+      "title": "LiteLLM",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/ai-obs-litellm",
+      "keepTime": true,
+      "includeVars": false,
+      "targetBlank": false,
+      "asDropdown": false,
+      "tags": [],
+      "tooltip": "Related dashboard"
     }
   ],
   "panels": [
@@ -104,7 +128,8 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -177,7 +202,8 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -251,7 +277,8 @@
           },
           "mappings": [],
           "min": 0,
-          "max": 1
+          "max": 1,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -315,7 +342,8 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -381,7 +409,8 @@
           },
           "mappings": [],
           "min": 0,
-          "max": 1
+          "max": 1,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -453,7 +482,8 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -549,7 +579,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -654,7 +685,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -759,7 +791,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -864,7 +897,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -971,7 +1005,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1076,7 +1111,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1183,7 +1219,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1286,7 +1323,8 @@
           },
           "mappings": [],
           "min": 0,
-          "max": 1
+          "max": 1,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1369,7 +1407,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1453,7 +1492,8 @@
           },
           "mappings": [],
           "min": 0,
-          "max": 1
+          "max": 1,
+          "noValue": "no data"
         },
         "overrides": []
       },

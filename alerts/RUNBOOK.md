@@ -110,3 +110,21 @@ Also used by `LiteLLMHighFailureRatio`, `LiteLLMDeploymentDegraded` and `LiteLLM
 1. Check the provider status page and the `exception_class` breakdown (RateLimitError, AuthenticationError, Timeout).
 2. Make sure fallbacks are configured for the model group so traffic moves to a healthy deployment.
 3. Budget alerts: raise the team budget or tell the team before requests start failing.
+
+## QdrantDeadReplicas
+
+Also used by `QdrantHighErrorRatio`.
+
+1. `GET /cluster` and `GET /collections/<name>/cluster` on any node show which shard replica is `Dead` and on which peer.
+2. A dead replica usually follows a node crash or disk problem. Once the node is back, Qdrant recovers the replica from a healthy peer (shard transfer); watch *Shard transfers* on the dashboard.
+3. If the peer is gone for good, remove it from the cluster and re-replicate the shard (`replicate_shard` cluster operation) to keep the replication factor.
+4. 5xx without dead replicas: check pod memory (OOM during optimization) and disk space for segments and snapshots.
+
+## WeaviateHighErrorRatio
+
+Also used by `WeaviateSlowQueries` and `WeaviateShardsNotReady`.
+
+1. On the dashboard, find the route with 5xx (*HTTP requests by route and status*) and the collection with slow queries.
+2. Shards stuck in LOADING after a restart: large collections load lazily; give the pod time and memory, or check the logs for corrupted LSM segments.
+3. Slow queries: a growing *Tombstones* line means deletes are waiting for cleanup; heavy batch imports compete with searches; the vector cache may be smaller than the index (`vectorCacheMaxObjects`).
+4. Memory pressure: HNSW lives in memory. Compare *Process memory* with the pod limit.

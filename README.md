@@ -1,6 +1,6 @@
 # AI observability pack
 
-Grafana dashboards, Prometheus alerts and Zabbix templates for self-hosted AI inference: LLM engines, embedding servers, model serving platforms, GPU telemetry, batch scheduling and LLM gateways.
+Grafana dashboards, Prometheus alerts and Zabbix templates for self-hosted AI inference: LLM engines, embedding servers, vector databases, model serving platforms, GPU telemetry, batch scheduling and LLM gateways.
 
 Every query uses the metric names the projects actually expose (taken from their source code, docs or real `/metrics` captures), and every dashboard query and alert rule is tested against a Prometheus scraping those samples (see [Testing](#testing)).
 
@@ -19,23 +19,26 @@ Every query uses the metric names the projects actually expose (taken from their
 | KServe / Knative | [`dashboards/kserve-knative.json`](dashboards/kserve-knative.json) | predict latency, queue-proxy traffic and 5xx, autoscaler desired vs actual pods, concurrency, panic mode | Knative Serving 1.19+ |
 | Ray Serve | [`dashboards/ray-serve.json`](dashboards/ray-serve.json) | HTTP traffic and errors, deployment latency and exceptions, queueing, replica health, autoscaling, status | Ray metrics export |
 | LiteLLM proxy | [`dashboards/litellm.json`](dashboards/litellm.json) | traffic, failures by exception, latency, TTFT, tokens, spend by model/team/key, budgets, deployment health | `callbacks: ["prometheus"]` |
+| Qdrant | [`dashboards/qdrant.json`](dashboards/qdrant.json) | REST traffic and latency per endpoint, points per collection, optimizations and update queue, replicas and shard transfers, snapshots, memory | on by default (`/metrics` on 6333) |
+| Weaviate | [`dashboards/weaviate.json`](dashboards/weaviate.json) | HTTP API by route, queries by collection and type, query dimensions, batch imports, HNSW size and tombstones, LSM memtables, shards | `PROMETHEUS_MONITORING_ENABLED=true` (port 2112) |
 
-Every dashboard has a `Data source` variable, Kubernetes `namespace`/`pod` filters (or the component's natural dimension: model, queue, application, GPU), a unit and a description on every panel, and a dropdown that links to the other dashboards of the pack.
+Every dashboard opens with a row of summary stats, has a `Data source` variable, Kubernetes `namespace`/`pod` filters (or the component's natural dimension: model, queue, application, GPU, collection), a unit and a description on every panel, thresholds on latency and error stats, a dropdown to the other dashboards of the pack plus direct links to related ones (vLLM to GPU and gateway, TEI to the vector databases...), and shows *no data* instead of a blank panel.
 
-**Alerts:** 36 Prometheus alert rules in 11 groups, as a plain rules file and as a `PrometheusRule`, with a [runbook](alerts/RUNBOOK.md) and `promtool` unit tests. See [Alerts](#alerts).
+**Alerts:** 41 Prometheus alert rules in 13 groups, as a plain rules file and as a `PrometheusRule`, with a [runbook](alerts/RUNBOOK.md) and `promtool` unit tests. See [Alerts](#alerts).
 
 **Zabbix:** templates for llama.cpp, vLLM and NVIDIA DCGM exporter using one HTTP agent item plus Prometheus preprocessing. See [Zabbix](#zabbix).
 
-Ollama is not included: it does not expose Prometheus metrics, and none of the community exporters is established enough to target.
+Ollama is not included: it does not expose Prometheus metrics, and none of the community exporters is established enough to target. Milvus, LocalAI and Infinity are not included yet because their metrics could not be captured from a running instance without downloading large images or models.
 
 ## Screenshots
 
-Rendered from the test fixtures in [`test/fixtures`](test/fixtures) (see [Testing](#testing)), so the numbers are not from a real workload.
+Rendered from the test fixtures in [`test/fixtures`](test/fixtures) (see [Testing](#testing)), so the numbers are not from a real workload. The fixture server keeps its clock across restarts, so the graphs have no artificial spikes.
 
 | | |
 |---|---|
 | vLLM ![vLLM](docs/screenshots/vllm.png) | NVIDIA GPU (DCGM) ![DCGM](docs/screenshots/nvidia-dcgm.png) |
 | vLLM production-stack router ![router](docs/screenshots/vllm-production-stack-router.png) | LiteLLM ![LiteLLM](docs/screenshots/litellm.png) |
+| Qdrant ![Qdrant](docs/screenshots/qdrant.png) | Weaviate ![Weaviate](docs/screenshots/weaviate.png) |
 
 All screenshots: [`docs/screenshots`](docs/screenshots).
 
@@ -104,6 +107,8 @@ promtool test rules alerts/tests/ai-inference-rules.test.yaml
 | kserve-knative | KnativeRevisionCannotScale, KnativeQueueProxy5xx |
 | ray-serve | RayServeDeploymentUnhealthy, RayServeHighErrorRatio, RayServeBackpressure |
 | litellm | LiteLLMHighFailureRatio, LiteLLMDeploymentOutage, LiteLLMDeploymentDegraded, LiteLLMTeamBudgetLow |
+| qdrant | QdrantDeadReplicas, QdrantHighErrorRatio |
+| weaviate | WeaviateHighErrorRatio, WeaviateSlowQueries, WeaviateShardsNotReady |
 
 Thresholds are starting points. Latency alerts in particular (TTFT p95 > 2s) should be set to your SLO. Throttling alerts need `DCGM_FI_DEV_THERMAL_VIOLATION` / `DCGM_FI_DEV_POWER_VIOLATION`, which are commented out in the default dcgm-exporter counters file.
 
@@ -132,9 +137,11 @@ Import in **Data collection > Templates > Import**, link to a host and set the `
 | Triton | 2.x; percentile panels need `--metrics-config histogram_latencies=true`, the rest works with the default counters |
 | dcgm-exporter | default counters; profiling (DCP) panels need a datacenter GPU |
 | Volcano | scheduler (with capacity plugin) and controller metrics captured from a real cluster |
-| KServe / Knative | KServe Python model server; Knative Serving 1.19+ (OpenTelemetry metric names) |
+| KServe / Knative | metrics captured from a real KServe 0.21 Python model server; Knative Serving 1.19+ (OpenTelemetry metric names) |
 | Ray Serve | metric names from the Ray Serve monitoring docs |
 | LiteLLM | metric names from `litellm/types/integrations/prometheus.py` |
+| Qdrant | metrics captured from a real Qdrant 1.20 (REST only; gRPC panels are not included) |
+| Weaviate | metrics captured from a real Weaviate 1.40 |
 
 ## Testing
 
@@ -146,9 +153,9 @@ python3 scripts/check_dashboards.py      # offline lint
 PROMETHEUS_BIN=/path/to/prometheus test/run.sh   # end-to-end: every query and every rule
 ```
 
-`test/run.sh` serves the fixtures in [`test/fixtures`](test/fixtures) with a small HTTP server that makes counters grow over time, scrapes them with Prometheus, runs every dashboard and variable query (fails on any PromQL error, lists queries with no data) and checks that all alert rules evaluate cleanly.
+`test/run.sh` serves the fixtures in [`test/fixtures`](test/fixtures) with a small HTTP server that makes counters grow and histograms shift over time, scrapes them with Prometheus, runs every dashboard and variable query (fails on any PromQL error, lists queries with no data) and checks that all alert rules evaluate cleanly. Seven queries return no data on purpose: the router capture has no per-backend ITL, decoding length or waiting series, the Volcano capture comes from a cluster without GPU queues, and the llama.cpp capture ran without a draft model, so speculative decoding acceptance is 0/0.
 
-Fixtures for llama.cpp, TEI, Volcano and the vLLM production-stack router are real `/metrics` captures. The others are synthetic, generated by [`scripts/make_synthetic_fixtures.py`](scripts/make_synthetic_fixtures.py) using only metric and label names found in each project's code or docs.
+Fixtures for llama.cpp, TEI, Volcano, the vLLM production-stack router, KServe, Qdrant and Weaviate are real `/metrics` captures. The others are synthetic, generated by [`scripts/make_synthetic_fixtures.py`](scripts/make_synthetic_fixtures.py) using only metric and label names found in each project's code or docs.
 
 ## Contributing
 

@@ -69,6 +69,54 @@
       "targetBlank": false,
       "title": "AI observability",
       "type": "dashboards"
+    },
+    {
+      "title": "vLLM",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/ai-obs-vllm",
+      "keepTime": true,
+      "includeVars": false,
+      "targetBlank": false,
+      "asDropdown": false,
+      "tags": [],
+      "tooltip": "Related dashboard"
+    },
+    {
+      "title": "SGLang",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/ai-obs-sglang",
+      "keepTime": true,
+      "includeVars": false,
+      "targetBlank": false,
+      "asDropdown": false,
+      "tags": [],
+      "tooltip": "Related dashboard"
+    },
+    {
+      "title": "Triton",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/ai-obs-triton",
+      "keepTime": true,
+      "includeVars": false,
+      "targetBlank": false,
+      "asDropdown": false,
+      "tags": [],
+      "tooltip": "Related dashboard"
+    },
+    {
+      "title": "Volcano",
+      "type": "link",
+      "icon": "dashboard",
+      "url": "/d/ai-obs-volcano",
+      "keepTime": true,
+      "includeVars": false,
+      "targetBlank": false,
+      "asDropdown": false,
+      "tags": [],
+      "tooltip": "Related dashboard"
     }
   ],
   "panels": [
@@ -116,7 +164,8 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -182,7 +231,8 @@
           },
           "mappings": [],
           "min": 0,
-          "max": 100
+          "max": 100,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -256,7 +306,8 @@
           },
           "mappings": [],
           "min": 0,
-          "max": 1
+          "max": 1,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -320,7 +371,8 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -392,7 +444,8 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -461,7 +514,8 @@
             "mode": "thresholds"
           },
           "mappings": [],
-          "decimals": 0
+          "decimals": 0,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -558,7 +612,8 @@
           },
           "mappings": [],
           "min": 0,
-          "max": 100
+          "max": 100,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -641,7 +696,8 @@
           },
           "mappings": [],
           "min": 0,
-          "max": 1
+          "max": 1,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -735,7 +791,8 @@
           },
           "mappings": [],
           "min": 0,
-          "max": 1
+          "max": 1,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -828,7 +885,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -945,7 +1003,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1028,7 +1087,8 @@
           },
           "mappings": [],
           "min": 0,
-          "max": 1
+          "max": 1,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1131,7 +1191,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1224,7 +1285,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1306,7 +1368,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1389,7 +1452,8 @@
           },
           "mappings": [],
           "min": 0,
-          "max": 1
+          "max": 1,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1483,7 +1547,8 @@
             "cellOptions": {
               "type": "auto"
             }
-          }
+          },
+          "noValue": "no data"
         },
         "overrides": [
           {
@@ -1533,7 +1598,8 @@
             },
             "renameByName": {
               "Value": "Last XID"
-            }
+            },
+            "indexByName": {}
           }
         }
       ]
@@ -1587,7 +1653,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1670,7 +1737,8 @@
               }
             ]
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1778,7 +1846,8 @@
           },
           "mappings": [],
           "min": 0,
-          "max": 100
+          "max": 100,
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1810,7 +1879,8 @@
           "expr": "avg by (namespace, pod) (DCGM_FI_DEV_GPU_UTIL{Hostname=~\"$Hostname\", gpu=~\"$gpu\", namespace=~\"$namespace\", pod=~\"$pod\", pod!=\"\"})",
           "legendFormat": "{{namespace}}/{{pod}}",
           "refId": "A",
-          "range": true
+          "range": false,
+          "instant": true
         }
       ]
     },
@@ -1844,7 +1914,8 @@
           "color": {
             "mode": "thresholds"
           },
-          "mappings": []
+          "mappings": [],
+          "noValue": "no data"
         },
         "overrides": []
       },
@@ -1876,7 +1947,8 @@
           "expr": "sum by (namespace, pod) (DCGM_FI_DEV_FB_USED{Hostname=~\"$Hostname\", gpu=~\"$gpu\", namespace=~\"$namespace\", pod=~\"$pod\", pod!=\"\"}) * 1048576",
           "legendFormat": "{{namespace}}/{{pod}}",
           "refId": "A",
-          "range": true
+          "range": false,
+          "instant": true
         }
       ]
     }

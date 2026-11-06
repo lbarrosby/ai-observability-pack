@@ -123,3 +123,65 @@ tests:
               summary: "3 Volcano jobs cannot be scheduled"
               description: "Jobs have been unschedulable for 30 minutes (queue quota, gang size or missing GPU capacity)."
               runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#volcanounschedulablejobs
+
+  - name: Qdrant dead replica and 5xx ratio (4xx ignored)
+    interval: 1m
+    input_series:
+      - series: 'collection_dead_replicas{namespace="vector-db", pod="qdrant-1"}'
+        values: '0 0 1 1 1 1 1 1 1 1 1'
+      - series: 'rest_responses_total{namespace="vector-db", pod="qdrant-0", method="POST", endpoint="/collections/{collection_name}/points/query", status="200"}'
+        values: '0+90x30'
+      - series: 'rest_responses_total{namespace="vector-db", pod="qdrant-0", method="POST", endpoint="/collections/{collection_name}/points/query", status="500"}'
+        values: '0+10x30'
+      - series: 'rest_responses_total{namespace="vector-db", pod="qdrant-1", method="POST", endpoint="/collections/{collection_name}/points/query", status="200"}'
+        values: '0+90x30'
+      - series: 'rest_responses_total{namespace="vector-db", pod="qdrant-1", method="POST", endpoint="/collections/{collection_name}/points/query", status="400"}'
+        values: '0+10x30'
+    alert_rule_test:
+      - eval_time: 8m
+        alertname: QdrantDeadReplicas
+        exp_alerts:
+          - exp_labels: {severity: critical, namespace: vector-db, pod: qdrant-1}
+            exp_annotations:
+              summary: "Qdrant vector-db/qdrant-1 reports 1 dead shard replicas"
+              description: "A shard replica is in Dead state: that copy lost data and queries may return partial results until it recovers."
+              runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#qdrantdeadreplicas
+      - eval_time: 20m
+        alertname: QdrantHighErrorRatio
+        exp_alerts:
+          - exp_labels: {severity: warning, namespace: vector-db, pod: qdrant-0}
+            exp_annotations:
+              summary: "10% of Qdrant REST requests on vector-db/qdrant-0 fail with 5xx"
+              description: "Server-side errors, not client mistakes (4xx are excluded)."
+              runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#qdrantdeadreplicas
+
+  - name: Weaviate slow queries and shards not ready
+    interval: 1m
+    input_series:
+      - series: 'queries_durations_ms_bucket{namespace="vector-db", pod="weaviate-0", class_name="Document", collection_namespace="", query_type="get_graphql", le="500"}'
+        values: '0+1x30'
+      - series: 'queries_durations_ms_bucket{namespace="vector-db", pod="weaviate-0", class_name="Document", collection_namespace="", query_type="get_graphql", le="5000"}'
+        values: '0+20x30'
+      - series: 'queries_durations_ms_bucket{namespace="vector-db", pod="weaviate-0", class_name="Document", collection_namespace="", query_type="get_graphql", le="+Inf"}'
+        values: '0+20x30'
+      - series: 'weaviate_index_shards_total{namespace="vector-db", pod="weaviate-0", status="LOADING"}'
+        values: '2x30'
+      - series: 'weaviate_index_shards_total{namespace="vector-db", pod="weaviate-0", status="READY"}'
+        values: '5x30'
+    alert_rule_test:
+      - eval_time: 25m
+        alertname: WeaviateSlowQueries
+        exp_alerts:
+          - exp_labels: {severity: warning, namespace: vector-db, class_name: Document}
+            exp_annotations:
+              summary: "Weaviate query p95 for Document is 4763ms"
+              description: "Searches on this collection take over a second. Look at tombstones, the vector cache size and concurrent imports."
+              runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#weaviatehigherrorratio
+      - eval_time: 20m
+        alertname: WeaviateShardsNotReady
+        exp_alerts:
+          - exp_labels: {severity: warning, namespace: vector-db, pod: weaviate-0, status: LOADING}
+            exp_annotations:
+              summary: "Weaviate vector-db/weaviate-0 has 2 shards in LOADING"
+              description: "Shards stuck outside READY do not serve reads or writes."
+              runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#weaviatehigherrorratio

@@ -26,11 +26,14 @@ def target(expr, legend="__auto", ref="A", instant=False):
 
 
 class Dashboard:
+    base_tag = "ai-observability"
+    no_value = None
+
     def __init__(self, uid, title, description, tags, variables, links=None):
         self.uid = uid
         self.title = title
         self.description = description
-        self.tags = ["ai-observability"] + tags
+        self.tags = [self.base_tag] + tags
         self.variables = variables
         self.links = links or []
         self.panels = []
@@ -62,6 +65,16 @@ class Dashboard:
                             "gridPos": {"x": 0, "y": self._y, "w": 24, "h": 1}, "panels": []})
         self._y += 1
 
+    def _extras(self, panel, link, no_value):
+        if link:
+            uid, title = link
+            panel["links"] = [{"title": title, "targetBlank": False,
+                               "url": f"/d/{uid}?${{__url_time_range}}&${{DS_PROMETHEUS:queryparam}}"}]
+        nv = no_value or self.no_value
+        if nv:
+            panel["fieldConfig"]["defaults"]["noValue"] = nv
+        return panel
+
     def _targets(self, exprs):
         if isinstance(exprs, str):
             exprs = [(exprs, "__auto")]
@@ -76,7 +89,7 @@ class Dashboard:
         return out
 
     def stat(self, title, expr, unit, description, w=4, h=4, thresholds=None, decimals=None,
-             mappings=None, color_mode="value", graph=True, min_=None, max_=None):
+             mappings=None, color_mode="value", graph=True, min_=None, max_=None, link=None, no_value=None):
         self._types.add("stat")
         defaults = {"unit": unit, "thresholds": _thresholds(thresholds), "color": {"mode": "thresholds"},
                     "mappings": mappings or []}
@@ -88,7 +101,7 @@ class Dashboard:
             defaults["min"] = min_
         if max_ is not None:
             defaults["max"] = max_
-        self.panels.append({
+        self.panels.append(self._extras({
             "type": "stat", "title": title, "description": description, "id": self._next_id(),
             "datasource": DS, "gridPos": self._place(w, h),
             "fieldConfig": {"defaults": defaults, "overrides": []},
@@ -97,11 +110,11 @@ class Dashboard:
                         "justifyMode": "auto", "textMode": "value", "orientation": "auto",
                         "showPercentChange": False, "wideLayout": True},
             "targets": self._targets(expr),
-        })
+        }, link, no_value))
 
     def ts(self, title, exprs, unit, description, w=12, h=8, stack=False, min_=None, max_=None,
            thresholds=None, legend_calcs=("mean", "max", "lastNotNull"), fill=10, draw="line",
-           overrides=None, decimals=None, show_thresholds=False, legend="__auto"):
+           overrides=None, decimals=None, show_thresholds=False, legend="__auto", link=None, no_value=None):
         self._types.add("timeseries")
         custom = {"drawStyle": draw, "lineWidth": 1, "fillOpacity": fill, "gradientMode": "none",
                   "showPoints": "never", "pointSize": 4, "spanNulls": False, "lineInterpolation": "linear",
@@ -117,7 +130,7 @@ class Dashboard:
             defaults["max"] = max_
         if decimals is not None:
             defaults["decimals"] = decimals
-        self.panels.append({
+        self.panels.append(self._extras({
             "type": "timeseries", "title": title, "description": description, "id": self._next_id(),
             "datasource": DS, "gridPos": self._place(w, h),
             "fieldConfig": {"defaults": defaults, "overrides": overrides or []},
@@ -125,10 +138,10 @@ class Dashboard:
                                    "showLegend": True, "calcs": list(legend_calcs or [])},
                         "tooltip": {"mode": "multi", "sort": "desc"}},
             "targets": self._targets(exprs if not isinstance(exprs, str) else [(exprs, legend)]),
-        })
+        }, link, no_value))
 
     def bargauge(self, title, expr, unit, description, w=12, h=8, thresholds=None, legend="__auto",
-                 min_=None, max_=None):
+                 min_=None, max_=None, link=None, no_value=None, decimals=None):
         self._types.add("bargauge")
         defaults = {"unit": unit, "thresholds": _thresholds(thresholds), "color": {"mode": "thresholds"},
                     "mappings": []}
@@ -136,7 +149,9 @@ class Dashboard:
             defaults["min"] = min_
         if max_ is not None:
             defaults["max"] = max_
-        self.panels.append({
+        if decimals is not None:
+            defaults["decimals"] = decimals
+        self.panels.append(self._extras({
             "type": "bargauge", "title": title, "description": description, "id": self._next_id(),
             "datasource": DS, "gridPos": self._place(w, h),
             "fieldConfig": {"defaults": defaults, "overrides": []},
@@ -144,28 +159,42 @@ class Dashboard:
                         "orientation": "horizontal", "displayMode": "gradient", "showUnfilled": True,
                         "valueMode": "color", "namePlacement": "auto", "sizing": "auto", "minVizHeight": 16,
                         "maxVizHeight": 300, "minVizWidth": 8},
-            "targets": [target(expr, legend)],
-        })
+            "targets": [dict(target(expr, legend), instant=True, range=False)],
+        }, link, no_value))
 
     def table(self, title, expr, description, w=12, h=8, value_unit="none", mappings=None,
-              hide=("Time",), rename=None, thresholds=None, value_color=False):
+              hide=("Time",), rename=None, thresholds=None, value_color=False, link=None, no_value=None,
+              sort_by=None, exprs=None, order=None):
         self._types.add("table")
         overrides = []
         if value_color:
             overrides.append({"matcher": {"id": "byName", "options": "Value"},
                               "properties": [{"id": "custom.cellOptions", "value": {"type": "color-background"}}]})
-        self.panels.append({
+        targets = [target(expr, "__auto", instant=True)]
+        transformations = []
+        if exprs:
+            targets = [target(e, n, ref="ABCDEFGHIJ"[i], instant=True) for i, (e, n) in enumerate(exprs)]
+            transformations.append({"id": "merge", "options": {}})
+            rename = dict(rename or {})
+            for i, (_, name) in enumerate(exprs):
+                rename[f"Value #{'ABCDEFGHIJ'[i]}"] = name
+        transformations.append({"id": "organize", "options": {
+            "excludeByName": {k: True for k in hide}, "renameByName": rename or {},
+            "indexByName": {k: i for i, k in enumerate(order or [])}}})
+        options = {"showHeader": True, "cellHeight": "sm", "footer": {"show": False}}
+        if sort_by:
+            options["sortBy"] = [{"displayName": sort_by, "desc": True}]
+        self.panels.append(self._extras({
             "type": "table", "title": title, "description": description, "id": self._next_id(),
             "datasource": DS, "gridPos": self._place(w, h),
             "fieldConfig": {"defaults": {"unit": value_unit, "mappings": mappings or [],
                                          "thresholds": _thresholds(thresholds),
                                          "custom": {"align": "auto", "cellOptions": {"type": "auto"}}},
                             "overrides": overrides},
-            "options": {"showHeader": True, "cellHeight": "sm", "footer": {"show": False}},
-            "targets": [target(expr, "__auto", instant=True)],
-            "transformations": [{"id": "organize", "options": {
-                "excludeByName": {k: True for k in hide}, "renameByName": rename or {}}}],
-        })
+            "options": options,
+            "targets": targets,
+            "transformations": transformations,
+        }, link, no_value))
 
     def to_json(self):
         requires = [{"type": "grafana", "id": "grafana", "name": "Grafana", "version": "11.0.0"},
@@ -228,6 +257,24 @@ def pct(levels, metric, sel, by="le", extra_legend=""):
     return out
 
 
-def link_to(tag):
+def link_to(tag, title="AI observability"):
     return {"asDropdown": True, "icon": "external link", "includeVars": False, "keepTime": True,
-            "tags": [tag], "targetBlank": False, "title": "AI observability", "type": "dashboards"}
+            "tags": [tag], "targetBlank": False, "title": title, "type": "dashboards"}
+
+
+def custom_var(name, label, options, default=None, hide=0, multi=False):
+    """Fixed list of values. options: list of (text, value)."""
+    default = default or options[0][1]
+    text = next(t for t, v in options if v == default)
+    return {"name": name, "label": label, "type": "custom", "hide": hide, "multi": multi, "includeAll": False,
+            "query": ",".join(f"{t} : {v}" if t != v else v for t, v in options),
+            "current": {"selected": True, "text": text, "value": default},
+            "options": [{"selected": v == default, "text": t, "value": v} for t, v in options],
+            "skipUrlSync": False}
+
+
+def textbox_var(name, label, default, description=""):
+    """Free text value, e.g. a price. Its default is what the dashboard ships with."""
+    return {"name": name, "label": label, "type": "textbox", "hide": 0, "query": default, "description": description,
+            "current": {"selected": False, "text": default, "value": default},
+            "options": [{"selected": True, "text": default, "value": default}], "skipUrlSync": False}
