@@ -1,0 +1,159 @@
+# HELP ray_serve_num_http_requests synthetic
+# TYPE ray_serve_num_http_requests counter
+ray_serve_num_http_requests_total{route="/llm-app",method="POST",application="llm-app",status_code="200"} 9000
+ray_serve_num_http_requests_total{route="/llm-app",method="POST",application="llm-app",status_code="500"} 12
+ray_serve_num_http_requests_total{route="/llm-app",method="POST",application="llm-app",status_code="503"} 5
+ray_serve_num_http_requests_total{route="/embed-app",method="POST",application="embed-app",status_code="200"} 4500
+ray_serve_num_http_requests_total{route="/embed-app",method="POST",application="embed-app",status_code="500"} 6
+ray_serve_num_http_requests_total{route="/embed-app",method="POST",application="embed-app",status_code="503"} 2
+# HELP ray_serve_num_http_error_requests synthetic
+# TYPE ray_serve_num_http_error_requests counter
+ray_serve_num_http_error_requests_total{route="/llm-app",method="POST",application="llm-app",error_code="500"} 12
+ray_serve_num_http_error_requests_total{route="/llm-app",method="POST",application="llm-app",error_code="503"} 5
+ray_serve_num_http_error_requests_total{route="/embed-app",method="POST",application="embed-app",error_code="500"} 6
+ray_serve_num_http_error_requests_total{route="/embed-app",method="POST",application="embed-app",error_code="503"} 2
+# HELP ray_serve_http_request_latency_ms synthetic
+# TYPE ray_serve_http_request_latency_ms histogram
+ray_serve_http_request_latency_ms_bucket{route="/llm-app",method="POST",application="llm-app",status_code="200",le="1"} 0
+ray_serve_http_request_latency_ms_bucket{route="/llm-app",method="POST",application="llm-app",status_code="200",le="5"} 0
+ray_serve_http_request_latency_ms_bucket{route="/llm-app",method="POST",application="llm-app",status_code="200",le="10"} 0
+ray_serve_http_request_latency_ms_bucket{route="/llm-app",method="POST",application="llm-app",status_code="200",le="25"} 0
+ray_serve_http_request_latency_ms_bucket{route="/llm-app",method="POST",application="llm-app",status_code="200",le="50"} 7
+ray_serve_http_request_latency_ms_bucket{route="/llm-app",method="POST",application="llm-app",status_code="200",le="100"} 103
+ray_serve_http_request_latency_ms_bucket{route="/llm-app",method="POST",application="llm-app",status_code="200",le="250"} 1163
+ray_serve_http_request_latency_ms_bucket{route="/llm-app",method="POST",application="llm-app",status_code="200",le="500"} 3565
+ray_serve_http_request_latency_ms_bucket{route="/llm-app",method="POST",application="llm-app",status_code="200",le="1000"} 6541
+ray_serve_http_request_latency_ms_bucket{route="/llm-app",method="POST",application="llm-app",status_code="200",le="2500"} 8638
+ray_serve_http_request_latency_ms_bucket{route="/llm-app",method="POST",application="llm-app",status_code="200",le="5000"} 8959
+ray_serve_http_request_latency_ms_bucket{route="/llm-app",method="POST",application="llm-app",status_code="200",le="10000"} 8997
+ray_serve_http_request_latency_ms_bucket{route="/llm-app",method="POST",application="llm-app",status_code="200",le="+Inf"} 9000
+ray_serve_http_request_latency_ms_sum{route="/llm-app",method="POST",application="llm-app",status_code="200"} 7650000
+ray_serve_http_request_latency_ms_count{route="/llm-app",method="POST",application="llm-app",status_code="200"} 9000
+ray_serve_http_request_latency_ms_bucket{route="/embed-app",method="POST",application="embed-app",status_code="200",le="1"} 0
+ray_serve_http_request_latency_ms_bucket{route="/embed-app",method="POST",application="embed-app",status_code="200",le="5"} 0
+ray_serve_http_request_latency_ms_bucket{route="/embed-app",method="POST",application="embed-app",status_code="200",le="10"} 0
+ray_serve_http_request_latency_ms_bucket{route="/embed-app",method="POST",application="embed-app",status_code="200",le="25"} 0
+ray_serve_http_request_latency_ms_bucket{route="/embed-app",method="POST",application="embed-app",status_code="200",le="50"} 3
+ray_serve_http_request_latency_ms_bucket{route="/embed-app",method="POST",application="embed-app",status_code="200",le="100"} 51
+ray_serve_http_request_latency_ms_bucket{route="/embed-app",method="POST",application="embed-app",status_code="200",le="250"} 581
+ray_serve_http_request_latency_ms_bucket{route="/embed-app",method="POST",application="embed-app",status_code="200",le="500"} 1782
+ray_serve_http_request_latency_ms_bucket{route="/embed-app",method="POST",application="embed-app",status_code="200",le="1000"} 3270
+ray_serve_http_request_latency_ms_bucket{route="/embed-app",method="POST",application="embed-app",status_code="200",le="2500"} 4319
+ray_serve_http_request_latency_ms_bucket{route="/embed-app",method="POST",application="embed-app",status_code="200",le="5000"} 4479
+ray_serve_http_request_latency_ms_bucket{route="/embed-app",method="POST",application="embed-app",status_code="200",le="10000"} 4498
+ray_serve_http_request_latency_ms_bucket{route="/embed-app",method="POST",application="embed-app",status_code="200",le="+Inf"} 4500
+ray_serve_http_request_latency_ms_sum{route="/embed-app",method="POST",application="embed-app",status_code="200"} 3825000
+ray_serve_http_request_latency_ms_count{route="/embed-app",method="POST",application="embed-app",status_code="200"} 4500
+# HELP ray_serve_num_ongoing_http_requests synthetic
+# TYPE ray_serve_num_ongoing_http_requests gauge
+ray_serve_num_ongoing_http_requests{node_id="abc",node_ip_address="10.0.0.5"} 14
+# HELP ray_serve_deployment_queued_queries synthetic
+# TYPE ray_serve_deployment_queued_queries gauge
+ray_serve_deployment_queued_queries{deployment="LLMServer",application="llm-app",handle="h1",actor_id="x"} 3
+ray_serve_deployment_queued_queries{deployment="Embedder",application="embed-app",handle="h1",actor_id="x"} 1
+# HELP ray_serve_num_ongoing_requests_at_replicas synthetic
+# TYPE ray_serve_num_ongoing_requests_at_replicas gauge
+ray_serve_num_ongoing_requests_at_replicas{deployment="LLMServer",application="llm-app",handle="h1",actor_id="x"} 8
+ray_serve_num_ongoing_requests_at_replicas{deployment="Embedder",application="embed-app",handle="h1",actor_id="x"} 4
+# HELP ray_serve_replica_processing_queries synthetic
+# TYPE ray_serve_replica_processing_queries gauge
+ray_serve_replica_processing_queries{deployment="LLMServer",replica="LLMServer#r0",application="llm-app"} 4
+ray_serve_replica_processing_queries{deployment="LLMServer",replica="LLMServer#r1",application="llm-app"} 4
+ray_serve_replica_processing_queries{deployment="Embedder",replica="Embedder#r0",application="embed-app"} 4
+ray_serve_replica_processing_queries{deployment="Embedder",replica="Embedder#r1",application="embed-app"} 4
+# HELP ray_serve_replica_utilization_percent synthetic
+# TYPE ray_serve_replica_utilization_percent gauge
+ray_serve_replica_utilization_percent{deployment="LLMServer",replica="LLMServer#r0",application="llm-app"} 63.0
+ray_serve_replica_utilization_percent{deployment="LLMServer",replica="LLMServer#r1",application="llm-app"} 63.0
+ray_serve_replica_utilization_percent{deployment="Embedder",replica="Embedder#r0",application="embed-app"} 63.0
+ray_serve_replica_utilization_percent{deployment="Embedder",replica="Embedder#r1",application="embed-app"} 63.0
+# HELP ray_serve_deployment_request_counter synthetic
+# TYPE ray_serve_deployment_request_counter counter
+ray_serve_deployment_request_counter_total{deployment="LLMServer",replica="LLMServer#r0",route="/llm-app",application="llm-app"} 4500
+ray_serve_deployment_request_counter_total{deployment="LLMServer",replica="LLMServer#r1",route="/llm-app",application="llm-app"} 4500
+ray_serve_deployment_request_counter_total{deployment="Embedder",replica="Embedder#r0",route="/embed-app",application="embed-app"} 2250
+ray_serve_deployment_request_counter_total{deployment="Embedder",replica="Embedder#r1",route="/embed-app",application="embed-app"} 2250
+# HELP ray_serve_deployment_error_counter synthetic
+# TYPE ray_serve_deployment_error_counter counter
+ray_serve_deployment_error_counter_total{deployment="LLMServer",replica="LLMServer#r0",route="/llm-app",application="llm-app",exception_type="RuntimeError"} 3
+ray_serve_deployment_error_counter_total{deployment="Embedder",replica="Embedder#r0",route="/embed-app",application="embed-app",exception_type="RuntimeError"} 3
+# HELP ray_serve_deployment_processing_latency_ms synthetic
+# TYPE ray_serve_deployment_processing_latency_ms histogram
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r0",route="/llm-app",application="llm-app",le="1"} 0
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r0",route="/llm-app",application="llm-app",le="5"} 0
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r0",route="/llm-app",application="llm-app",le="10"} 0
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r0",route="/llm-app",application="llm-app",le="25"} 0
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r0",route="/llm-app",application="llm-app",le="50"} 8
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r0",route="/llm-app",application="llm-app",le="100"} 94
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r0",route="/llm-app",application="llm-app",le="250"} 843
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r0",route="/llm-app",application="llm-app",le="500"} 2213
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r0",route="/llm-app",application="llm-app",le="1000"} 3605
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r0",route="/llm-app",application="llm-app",le="2500"} 4395
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r0",route="/llm-app",application="llm-app",le="5000"} 4490
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r0",route="/llm-app",application="llm-app",le="10000"} 4499
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r0",route="/llm-app",application="llm-app",le="+Inf"} 4500
+ray_serve_deployment_processing_latency_ms_sum{deployment="LLMServer",replica="LLMServer#r0",route="/llm-app",application="llm-app"} 3150000
+ray_serve_deployment_processing_latency_ms_count{deployment="LLMServer",replica="LLMServer#r0",route="/llm-app",application="llm-app"} 4500
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r1",route="/llm-app",application="llm-app",le="1"} 0
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r1",route="/llm-app",application="llm-app",le="5"} 0
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r1",route="/llm-app",application="llm-app",le="10"} 0
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r1",route="/llm-app",application="llm-app",le="25"} 0
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r1",route="/llm-app",application="llm-app",le="50"} 8
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r1",route="/llm-app",application="llm-app",le="100"} 94
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r1",route="/llm-app",application="llm-app",le="250"} 843
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r1",route="/llm-app",application="llm-app",le="500"} 2213
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r1",route="/llm-app",application="llm-app",le="1000"} 3605
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r1",route="/llm-app",application="llm-app",le="2500"} 4395
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r1",route="/llm-app",application="llm-app",le="5000"} 4490
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r1",route="/llm-app",application="llm-app",le="10000"} 4499
+ray_serve_deployment_processing_latency_ms_bucket{deployment="LLMServer",replica="LLMServer#r1",route="/llm-app",application="llm-app",le="+Inf"} 4500
+ray_serve_deployment_processing_latency_ms_sum{deployment="LLMServer",replica="LLMServer#r1",route="/llm-app",application="llm-app"} 3150000
+ray_serve_deployment_processing_latency_ms_count{deployment="LLMServer",replica="LLMServer#r1",route="/llm-app",application="llm-app"} 4500
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r0",route="/embed-app",application="embed-app",le="1"} 0
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r0",route="/embed-app",application="embed-app",le="5"} 0
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r0",route="/embed-app",application="embed-app",le="10"} 0
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r0",route="/embed-app",application="embed-app",le="25"} 0
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r0",route="/embed-app",application="embed-app",le="50"} 4
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r0",route="/embed-app",application="embed-app",le="100"} 47
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r0",route="/embed-app",application="embed-app",le="250"} 421
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r0",route="/embed-app",application="embed-app",le="500"} 1106
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r0",route="/embed-app",application="embed-app",le="1000"} 1802
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r0",route="/embed-app",application="embed-app",le="2500"} 2197
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r0",route="/embed-app",application="embed-app",le="5000"} 2245
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r0",route="/embed-app",application="embed-app",le="10000"} 2249
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r0",route="/embed-app",application="embed-app",le="+Inf"} 2250
+ray_serve_deployment_processing_latency_ms_sum{deployment="Embedder",replica="Embedder#r0",route="/embed-app",application="embed-app"} 1575000
+ray_serve_deployment_processing_latency_ms_count{deployment="Embedder",replica="Embedder#r0",route="/embed-app",application="embed-app"} 2250
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r1",route="/embed-app",application="embed-app",le="1"} 0
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r1",route="/embed-app",application="embed-app",le="5"} 0
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r1",route="/embed-app",application="embed-app",le="10"} 0
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r1",route="/embed-app",application="embed-app",le="25"} 0
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r1",route="/embed-app",application="embed-app",le="50"} 4
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r1",route="/embed-app",application="embed-app",le="100"} 47
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r1",route="/embed-app",application="embed-app",le="250"} 421
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r1",route="/embed-app",application="embed-app",le="500"} 1106
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r1",route="/embed-app",application="embed-app",le="1000"} 1802
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r1",route="/embed-app",application="embed-app",le="2500"} 2197
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r1",route="/embed-app",application="embed-app",le="5000"} 2245
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r1",route="/embed-app",application="embed-app",le="10000"} 2249
+ray_serve_deployment_processing_latency_ms_bucket{deployment="Embedder",replica="Embedder#r1",route="/embed-app",application="embed-app",le="+Inf"} 2250
+ray_serve_deployment_processing_latency_ms_sum{deployment="Embedder",replica="Embedder#r1",route="/embed-app",application="embed-app"} 1575000
+ray_serve_deployment_processing_latency_ms_count{deployment="Embedder",replica="Embedder#r1",route="/embed-app",application="embed-app"} 2250
+# HELP ray_serve_deployment_replica_healthy synthetic
+# TYPE ray_serve_deployment_replica_healthy gauge
+ray_serve_deployment_replica_healthy{deployment="LLMServer",application="llm-app",replica="LLMServer#r0"} 1
+ray_serve_deployment_replica_healthy{deployment="LLMServer",application="llm-app",replica="LLMServer#r1"} 1
+ray_serve_deployment_replica_healthy{deployment="Embedder",application="embed-app",replica="Embedder#r0"} 1
+ray_serve_deployment_replica_healthy{deployment="Embedder",application="embed-app",replica="Embedder#r1"} 1
+# HELP ray_serve_autoscaling_target_replicas synthetic
+# TYPE ray_serve_autoscaling_target_replicas gauge
+ray_serve_autoscaling_target_replicas{deployment="LLMServer",application="llm-app"} 2
+ray_serve_autoscaling_target_replicas{deployment="Embedder",application="embed-app"} 2
+# HELP ray_serve_autoscaling_desired_replicas synthetic
+# TYPE ray_serve_autoscaling_desired_replicas gauge
+ray_serve_autoscaling_desired_replicas{deployment="LLMServer",application="llm-app"} 2
+ray_serve_autoscaling_desired_replicas{deployment="Embedder",application="embed-app"} 2
+# HELP ray_serve_deployment_status synthetic
+# TYPE ray_serve_deployment_status gauge
+ray_serve_deployment_status{deployment="LLMServer",application="llm-app"} 6
+ray_serve_deployment_status{deployment="Embedder",application="embed-app"} 6

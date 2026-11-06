@@ -1,0 +1,387 @@
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: ai-inference
+  labels:
+    app.kubernetes.io/name: ai-observability-pack
+    app.kubernetes.io/part-of: ai-observability-pack
+spec:
+  groups:
+    - name: vllm
+      rules:
+        - alert: VLLMRequestsQueueing
+          expr: sum by (namespace, pod, model_name) (vllm:num_requests_waiting{model_name!=""}) > 10
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "vLLM {{ $labels.model_name }} on {{ $labels.namespace }}/{{ $labels.pod }} has {{ $value }} requests waiting"
+            description: "The scheduler backlog has stayed above 10 requests for 10 minutes. The engine is saturated."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#vllmrequestsqueueing
+        - alert: VLLMKVCacheNearlyFull
+          expr: max by (namespace, pod, model_name) (vllm:kv_cache_usage_perc{model_name!=""} or vllm:gpu_cache_usage_perc{model_name!=""}) > 0.95
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "vLLM KV cache above 95% on {{ $labels.namespace }}/{{ $labels.pod }}"
+            description: "KV cache usage is {{ $value | humanizePercentage }}. New requests wait and running ones get preempted."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#vllmkvcachenearlyfull
+        - alert: VLLMPreemptions
+          expr: sum by (namespace, pod, model_name) (rate(vllm:num_preemptions_total{model_name!=""}[5m])) > 0.1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "vLLM is preempting requests on {{ $labels.namespace }}/{{ $labels.pod }}"
+            description: "{{ $value | humanize }} preemptions/s for 15 minutes: requests are recomputed because the KV cache ran out."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#vllmkvcachenearlyfull
+        - alert: VLLMHighTimeToFirstToken
+          expr: |
+            histogram_quantile(0.95, sum by (le, namespace, model_name) (rate(vllm:time_to_first_token_seconds_bucket{model_name!=""}[5m]))) > 2
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "vLLM TTFT p95 for {{ $labels.model_name }} is {{ $value | humanizeDuration }}"
+            description: "Time to first token p95 has been above 2s for 10 minutes. Tune the threshold to your SLO."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#vllmhightimetofirsttoken
+        - alert: VLLMHighAbortRatio
+          expr: |
+            sum by (namespace, model_name) (rate(vllm:request_success_total{finished_reason="abort"}[10m]))
+              / sum by (namespace, model_name) (rate(vllm:request_success_total[10m])) > 0.05
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $value | humanizePercentage }} of {{ $labels.model_name }} requests are aborted"
+            description: "Clients are disconnecting or cancelling before completion, usually because of timeouts."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#vllmhightimetofirsttoken
+
+    - name: vllm-production-stack-router
+      rules:
+        - alert: VLLMRouterNoHealthyBackends
+          expr: sum by (namespace, pod) (vllm:healthy_pods_total{server!=""}) == 0
+          for: 2m
+          labels:
+            severity: critical
+          annotations:
+            summary: "vLLM router {{ $labels.namespace }}/{{ $labels.pod }} has no healthy backends"
+            description: "Every request routed now fails."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#vllmrouternohealthybackends
+        - alert: VLLMRouterHighErrorRatio
+          expr: |
+            sum by (namespace, pod) (rate(vllm:request_errors_total{server!=""}[5m]))
+              / sum by (namespace, pod) (rate(vllm:num_incoming_requests_total[5m])) > 0.05
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "vLLM router error ratio is {{ $value | humanizePercentage }}"
+            description: "More than 5% of routed requests fail. Check the error_type label in the router dashboard."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#vllmrouternohealthybackends
+
+    - name: sglang
+      rules:
+        - alert: SGLangRequestsQueueing
+          expr: sum by (namespace, pod, model_name) (sglang:num_queue_reqs) > 10
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "SGLang {{ $labels.namespace }}/{{ $labels.pod }} has {{ $value }} queued requests"
+            description: "The scheduler queue has stayed above 10 requests for 10 minutes."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#vllmrequestsqueueing
+        - alert: SGLangTokenPoolNearlyFull
+          expr: max by (namespace, pod, model_name) (sglang:token_usage) > 0.95
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "SGLang KV token pool above 95% on {{ $labels.namespace }}/{{ $labels.pod }}"
+            description: "Token pool usage is {{ $value | humanizePercentage }}; requests will be retracted or queued."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#vllmkvcachenearlyfull
+        - alert: SGLangHighTimeToFirstToken
+          expr: |
+            histogram_quantile(0.95, sum by (le, namespace, model_name) (rate(sglang:time_to_first_token_seconds_bucket[5m]))) > 2
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "SGLang TTFT p95 for {{ $labels.model_name }} is {{ $value | humanizeDuration }}"
+            description: "Time to first token p95 has been above 2s for 10 minutes."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#vllmhightimetofirsttoken
+
+    - name: llama-cpp
+      rules:
+        - alert: LlamaCppRequestsDeferred
+          expr: sum by (namespace, pod) (llamacpp:requests_deferred) > 2
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "llama-server {{ $labels.namespace }}/{{ $labels.pod }} is deferring requests"
+            description: "{{ $value }} requests are waiting for a free slot for 10 minutes."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#llamacpprequestsdeferred
+
+    - name: hf-tei
+      rules:
+        - alert: TEIQueueBacklog
+          expr: sum by (namespace, pod) (te_queue_size) > 100
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "TEI {{ $labels.namespace }}/{{ $labels.pod }} queue has {{ $value }} requests"
+            description: "The batching queue keeps growing; the model cannot keep up."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#teiqueuebacklog
+        - alert: TEIHighFailureRatio
+          expr: |
+            sum by (namespace, pod) (rate(te_request_failure[5m]))
+              / sum by (namespace, pod) (rate(te_request_count[5m])) > 0.05
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "TEI failure ratio is {{ $value | humanizePercentage }} on {{ $labels.namespace }}/{{ $labels.pod }}"
+            description: "Check the err label: tokenization/validation are client errors, inference/overloaded are server-side."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#teiqueuebacklog
+
+    - name: triton
+      rules:
+        - alert: TritonHighFailureRatio
+          expr: |
+            sum by (namespace, model) (rate(nv_inference_request_failure[5m]))
+              / (sum by (namespace, model) (rate(nv_inference_request_success[5m])) + sum by (namespace, model) (rate(nv_inference_request_failure[5m]))) > 0.05
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Triton model {{ $labels.model }} failure ratio is {{ $value | humanizePercentage }}"
+            description: "Check the reason label: REJECTED means queue timeouts, BACKEND means model errors."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#tritonhighfailureratio
+        - alert: TritonPendingRequests
+          expr: sum by (namespace, pod, model) (nv_inference_pending_request_count) > 50
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Triton model {{ $labels.model }} has {{ $value }} pending requests"
+            description: "Requests are queuing for model instances. Add instances, enable dynamic batching or scale out."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#tritonhighfailureratio
+
+    - name: nvidia-dcgm
+      rules:
+        - alert: GPUXidError
+          expr: DCGM_FI_DEV_XID_ERRORS != 0
+          for: 0m
+          labels:
+            severity: warning
+          annotations:
+            summary: "GPU {{ $labels.gpu }} on {{ $labels.Hostname }} reported XID {{ $value }}"
+            description: "Look the code up in NVIDIA's XID catalog. 13/31/43 are usually application faults."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#gpuxiderror
+        - alert: GPUFatalXidError
+          expr: |
+            DCGM_FI_DEV_XID_ERRORS == 48 or DCGM_FI_DEV_XID_ERRORS == 74 or DCGM_FI_DEV_XID_ERRORS == 79
+              or DCGM_FI_DEV_XID_ERRORS == 92 or DCGM_FI_DEV_XID_ERRORS == 94 or DCGM_FI_DEV_XID_ERRORS == 95
+          for: 0m
+          labels:
+            severity: critical
+          annotations:
+            summary: "GPU {{ $labels.gpu }} on {{ $labels.Hostname }} reported fatal XID {{ $value }}"
+            description: "XID 48/92/94/95 = ECC, 74 = NVLink, 79 = GPU fell off the bus. Drain the node and reset or replace the GPU."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#gpuxiderror
+        - alert: GPUHighTemperature
+          expr: DCGM_FI_DEV_GPU_TEMP > 85
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "GPU {{ $labels.gpu }} on {{ $labels.Hostname }} at {{ $value }}C"
+            description: "Sustained high temperature leads to thermal throttling."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#gputhrottling
+        - alert: GPUThermalThrottling
+          expr: rate(DCGM_FI_DEV_THERMAL_VIOLATION[5m]) / 1e9 > 0.1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "GPU {{ $labels.gpu }} on {{ $labels.Hostname }} is thermally throttled {{ $value | humanizePercentage }} of the time"
+            description: "Requires DCGM_FI_DEV_THERMAL_VIOLATION enabled in the dcgm-exporter counters CSV."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#gputhrottling
+        - alert: GPUPowerThrottling
+          expr: rate(DCGM_FI_DEV_POWER_VIOLATION[5m]) / 1e9 > 0.5
+          for: 30m
+          labels:
+            severity: info
+          annotations:
+            summary: "GPU {{ $labels.gpu }} on {{ $labels.Hostname }} is power capped {{ $value | humanizePercentage }} of the time"
+            description: "Some power capping under full load is normal; sustained capping lowers throughput. Requires DCGM_FI_DEV_POWER_VIOLATION."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#gputhrottling
+        - alert: GPURowRemapFailure
+          expr: DCGM_FI_DEV_ROW_REMAP_FAILURE > 0
+          for: 0m
+          labels:
+            severity: critical
+          annotations:
+            summary: "GPU {{ $labels.gpu }} on {{ $labels.Hostname }} failed to remap HBM rows"
+            description: "The GPU has exhausted its spare rows. Drain the node and open an RMA."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#gpuxiderror
+        - alert: GPUUncorrectableRemappedRowsIncreasing
+          expr: increase(DCGM_FI_DEV_UNCORRECTABLE_REMAPPED_ROWS[1h]) > 0
+          for: 0m
+          labels:
+            severity: warning
+          annotations:
+            summary: "GPU {{ $labels.gpu }} on {{ $labels.Hostname }} remapped rows after uncorrectable errors"
+            description: "A GPU reset is needed for the remap to take effect."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#gpuxiderror
+        - alert: GPUPCIeReplays
+          expr: rate(DCGM_FI_DEV_PCIE_REPLAY_COUNTER[5m]) > 1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "GPU {{ $labels.gpu }} on {{ $labels.Hostname }} has {{ $value | humanize }} PCIe replays/s"
+            description: "Points to a degraded PCIe link (riser, slot, cable)."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#gpuxiderror
+        - alert: GPUIdleWhileAllocated
+          expr: avg by (namespace, pod) (avg_over_time(DCGM_FI_DEV_GPU_UTIL{pod!=""}[1h])) < 5
+          for: 1h
+          labels:
+            severity: info
+          annotations:
+            summary: "{{ $labels.namespace }}/{{ $labels.pod }} holds GPUs at {{ $value | humanize }}% utilization"
+            description: "The GPUs assigned to this pod have been almost idle for 2 hours. Candidate for scale-down."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#gpuidlewhileallocated
+
+    - name: volcano
+      rules:
+        - alert: VolcanoUnschedulableJobs
+          expr: sum(volcano_unschedule_job_count) > 0
+          for: 30m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $value }} Volcano jobs cannot be scheduled"
+            description: "Jobs have been unschedulable for 30 minutes (queue quota, gang size or missing GPU capacity)."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#volcanounschedulablejobs
+        - alert: VolcanoSchedulingSlow
+          expr: histogram_quantile(0.95, sum by (le) (rate(volcano_e2e_scheduling_latency_milliseconds_bucket[5m]))) > 5000
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Volcano scheduling cycle p95 is {{ $value | humanize }}ms"
+            description: "Check plugin latency in the Volcano dashboard to find the slow plugin."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#volcanounschedulablejobs
+        - alert: VolcanoJobsFailing
+          expr: sum by (queue_name) (increase(volcano_job_failed_phase_count[30m])) > 0
+          for: 0m
+          labels:
+            severity: info
+          annotations:
+            summary: "Volcano jobs failed in queue {{ $labels.queue_name }}"
+            description: "{{ $value | humanize }} jobs reached Failed in the last 30 minutes."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#volcanounschedulablejobs
+
+    - name: kserve-knative
+      rules:
+        - alert: KnativeRevisionCannotScale
+          expr: |
+            sum by (k8s_namespace_name, kn_revision_name) (kn_revision_pods_requested)
+              - sum by (k8s_namespace_name, kn_revision_name) (kn_revision_pods_count) > 0
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Knative revision {{ $labels.kn_revision_name }} is {{ $value }} pods short"
+            description: "Pods requested by the autoscaler have not become ready for 15 minutes (no GPU capacity, image pull, model download)."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#knativerevisioncannotscale
+        - alert: KnativeQueueProxy5xx
+          expr: |
+            sum by (namespace) (rate(kn_serving_invocation_duration_seconds_count{http_response_status_code=~"5.."}[5m]))
+              / sum by (namespace) (rate(kn_serving_invocation_duration_seconds_count[5m])) > 0.05
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $value | humanizePercentage }} of requests in {{ $labels.namespace }} return 5xx"
+            description: "Measured at the Knative queue-proxy sidecar."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#knativerevisioncannotscale
+
+    - name: ray-serve
+      rules:
+        - alert: RayServeDeploymentUnhealthy
+          expr: ray_serve_deployment_status == 1 or ray_serve_deployment_status == 2
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "Ray Serve deployment {{ $labels.application }}/{{ $labels.deployment }} is DEPLOY_FAILED or UNHEALTHY"
+            description: "Check replica logs and health checks."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#rayservedeploymentunhealthy
+        - alert: RayServeHighErrorRatio
+          expr: |
+            sum by (application) (rate(ray_serve_num_http_error_requests_total[5m]))
+              / sum by (application) (rate(ray_serve_num_http_requests_total[5m])) > 0.05
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "Ray Serve application {{ $labels.application }} error ratio is {{ $value | humanizePercentage }}"
+            description: "More than 5% of HTTP requests return errors."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#rayservedeploymentunhealthy
+        - alert: RayServeBackpressure
+          expr: sum by (application, deployment) (ray_serve_deployment_queued_queries) > 100
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $value }} requests queued for {{ $labels.application }}/{{ $labels.deployment }}"
+            description: "Requests wait for replicas. Check autoscaling limits (max_replicas) and cluster capacity."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#rayservedeploymentunhealthy
+
+    - name: litellm
+      rules:
+        - alert: LiteLLMHighFailureRatio
+          expr: |
+            sum by (requested_model) (rate(litellm_proxy_failed_requests_metric_total[5m]))
+              / sum by (requested_model) (rate(litellm_proxy_total_requests_metric_total[5m])) > 0.05
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "LiteLLM failure ratio for {{ $labels.requested_model }} is {{ $value | humanizePercentage }}"
+            description: "Check exception_class in the LiteLLM dashboard (RateLimitError, Timeout, provider errors)."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#litellmdeploymentoutage
+        - alert: LiteLLMDeploymentOutage
+          expr: max by (model_group, litellm_model_name, api_provider) (litellm_deployment_state) == 2
+          for: 5m
+          labels:
+            severity: critical
+          annotations:
+            summary: "LiteLLM deployment {{ $labels.litellm_model_name }} ({{ $labels.api_provider }}) is in complete outage"
+            description: "All recent calls to this upstream deployment failed."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#litellmdeploymentoutage
+        - alert: LiteLLMDeploymentDegraded
+          expr: max by (model_group, litellm_model_name, api_provider) (litellm_deployment_state) == 1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "LiteLLM deployment {{ $labels.litellm_model_name }} ({{ $labels.api_provider }}) is in partial outage"
+            description: "Some calls to this upstream deployment fail."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#litellmdeploymentoutage
+        - alert: LiteLLMTeamBudgetLow
+          expr: |
+            max by (team, team_alias) (litellm_remaining_team_budget_metric)
+              / max by (team, team_alias) (litellm_team_max_budget_metric) < 0.1
+          for: 0m
+          labels:
+            severity: info
+          annotations:
+            summary: "Team {{ $labels.team_alias }} has {{ $value | humanizePercentage }} of its budget left"
+            description: "Requests will be rejected when the budget reaches zero."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#litellmdeploymentoutage

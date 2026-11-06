@@ -1,0 +1,37 @@
+# HELP kn_serving_queue_depth synthetic
+# TYPE kn_serving_queue_depth gauge
+kn_serving_queue_depth 1
+# HELP kn_serving_invocation_duration_seconds synthetic
+# TYPE kn_serving_invocation_duration_seconds histogram
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="200",le="0.01"} 428
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="200",le="0.025"} 2563
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="200",le="0.05"} 5243
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="200",le="0.1"} 7178
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="200",le="0.25"} 7936
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="200",le="0.5"} 7995
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="200",le="1"} 7999
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="200",le="2.5"} 7999
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="200",le="5"} 7999
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="200",le="10"} 7999
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="200",le="20"} 7999
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="200",le="40"} 8000
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="200",le="80"} 8000
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="200",le="+Inf"} 8000
+kn_serving_invocation_duration_seconds_sum{http_response_status_code="200"} 400.0
+kn_serving_invocation_duration_seconds_count{http_response_status_code="200"} 8000
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="503",le="0.01"} 2
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="503",le="0.025"} 3
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="503",le="0.05"} 3
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="503",le="0.1"} 3
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="503",le="0.25"} 3
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="503",le="0.5"} 3
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="503",le="1"} 3
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="503",le="2.5"} 3
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="503",le="5"} 3
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="503",le="10"} 4
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="503",le="20"} 4
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="503",le="40"} 4
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="503",le="80"} 4
+kn_serving_invocation_duration_seconds_bucket{http_response_status_code="503",le="+Inf"} 4
+kn_serving_invocation_duration_seconds_sum{http_response_status_code="503"} 0.04
+kn_serving_invocation_duration_seconds_count{http_response_status_code="503"} 4

@@ -1,0 +1,420 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 'a571c0d144b14fd4a87a9d9b2aa9fcd6'
+      name: 'Templates/Applications'
+  templates:
+    - uuid: '9e7afd392e194f30bda575fa8c30989a'
+      template: 'NVIDIA DCGM exporter by HTTP'
+      name: 'NVIDIA DCGM exporter by HTTP'
+      description: |
+        Monitors NVIDIA GPUs through dcgm-exporter (default counters). Set {$DCGM.METRICS.URL} on the host. GPUs are discovered from the gpu label.
+        
+        Source: https://github.com/lbarrosby/ai-observability-pack
+      vendor:
+        name: 'ai-observability-pack'
+        version: '7.0-1'
+      groups:
+        - name: 'Templates/Applications'
+      items:
+        - uuid: '114b90f2e3f04abfa16945805052711f'
+          name: 'Get metrics'
+          type: 'HTTP_AGENT'
+          key: 'dcgm.get_metrics'
+          delay: '{$DCGM.INTERVAL}'
+          history: '0'
+          trends: '0'
+          value_type: 'TEXT'
+          description: 'Raw Prometheus exposition. Every other item depends on it.'
+          url: '{$DCGM.METRICS.URL}'
+          tags:
+            - tag: 'component'
+              value: 'raw'
+        - uuid: '4ab5efe87d324b0685334b722518b129'
+          name: 'GPU count'
+          type: 'DEPENDENT'
+          key: 'dcgm.gpu.count'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: ''
+          description: 'Number of GPUs exposed by the exporter.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'DCGM_FI_DEV_GPU_UTIL'
+                - 'function'
+                - 'count'
+          master_item:
+            key: 'dcgm.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'inventory'
+          triggers:
+            - expression: 'nodata(/NVIDIA DCGM exporter by HTTP/dcgm.gpu.count,{$DCGM.NODATA.TIMEOUT})=1'
+              name: 'DCGM: Metrics endpoint is unavailable'
+              priority: 'HIGH'
+              description: 'No data from {$DCGM.METRICS.URL}.'
+              uuid: 'e0336b6e29a64b6d905866de76cc64c9'
+            - expression: 'last(/NVIDIA DCGM exporter by HTTP/dcgm.gpu.count)<last(/NVIDIA DCGM exporter by HTTP/dcgm.gpu.count,#2)'
+              name: 'DCGM: Number of GPUs decreased'
+              priority: 'HIGH'
+              description: 'A GPU disappeared (fell off the bus, driver reset or exporter restart).'
+              manual_close: YES
+              uuid: '2e9c1c60604340d298281075586d1e88'
+        - uuid: 'e7c6c9b70dd340379b18b88ad6de11ba'
+          name: 'Total power draw'
+          type: 'DEPENDENT'
+          key: 'dcgm.power.total'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: 'W'
+          description: 'Sum of power draw over all GPUs.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'DCGM_FI_DEV_POWER_USAGE'
+                - 'function'
+                - 'sum'
+          master_item:
+            key: 'dcgm.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'power'
+      discovery_rules:
+        - uuid: 'b2cc5b14ce0d44c894aa0449269d9e02'
+          name: 'GPU discovery'
+          type: 'DEPENDENT'
+          key: 'dcgm.gpu.discovery'
+          delay: '0'
+          description: 'Discovers GPUs from DCGM_FI_DEV_GPU_UTIL.'
+          item_prototypes:
+            - uuid: '04a16d8dedfa4efdb5ab5d43b04b5d31'
+              name: 'GPU {#GPU}: GPU utilization'
+              type: 'DEPENDENT'
+              key: 'dcgm.gpu.util["{#GPU}"]'
+              delay: '0'
+              value_type: 'FLOAT'
+              units: '%'
+              preprocessing:
+                - type: 'PROMETHEUS_PATTERN'
+                  parameters:
+                    - 'DCGM_FI_DEV_GPU_UTIL{gpu="{#GPU}"}'
+                    - 'function'
+                    - 'max'
+              master_item:
+                key: 'dcgm.get_metrics'
+              tags:
+                - tag: 'component'
+                  value: 'utilization'
+                - tag: 'gpu'
+                  value: '{#GPU}'
+            - uuid: 'e42066b8c15e41e9a21f29cafb0dea7d'
+              name: 'GPU {#GPU}: Memory copy utilization'
+              type: 'DEPENDENT'
+              key: 'dcgm.gpu.mem_copy_util["{#GPU}"]'
+              delay: '0'
+              value_type: 'FLOAT'
+              units: '%'
+              preprocessing:
+                - type: 'PROMETHEUS_PATTERN'
+                  parameters:
+                    - 'DCGM_FI_DEV_MEM_COPY_UTIL{gpu="{#GPU}"}'
+                    - 'function'
+                    - 'max'
+              master_item:
+                key: 'dcgm.get_metrics'
+              tags:
+                - tag: 'component'
+                  value: 'utilization'
+                - tag: 'gpu'
+                  value: '{#GPU}'
+            - uuid: '98fd990dcd0b42c885de7b67b4719dc0'
+              name: 'GPU {#GPU}: GPU temperature'
+              type: 'DEPENDENT'
+              key: 'dcgm.gpu.temp["{#GPU}"]'
+              delay: '0'
+              value_type: 'FLOAT'
+              units: '°C'
+              preprocessing:
+                - type: 'PROMETHEUS_PATTERN'
+                  parameters:
+                    - 'DCGM_FI_DEV_GPU_TEMP{gpu="{#GPU}"}'
+                    - 'function'
+                    - 'max'
+              master_item:
+                key: 'dcgm.get_metrics'
+              tags:
+                - tag: 'component'
+                  value: 'thermal'
+                - tag: 'gpu'
+                  value: '{#GPU}'
+            - uuid: '7d6ec8d450444c748d9319231df4f99d'
+              name: 'GPU {#GPU}: Memory temperature'
+              type: 'DEPENDENT'
+              key: 'dcgm.gpu.mem_temp["{#GPU}"]'
+              delay: '0'
+              value_type: 'FLOAT'
+              units: '°C'
+              preprocessing:
+                - type: 'PROMETHEUS_PATTERN'
+                  parameters:
+                    - 'DCGM_FI_DEV_MEMORY_TEMP{gpu="{#GPU}"}'
+                    - 'function'
+                    - 'max'
+              master_item:
+                key: 'dcgm.get_metrics'
+              tags:
+                - tag: 'component'
+                  value: 'thermal'
+                - tag: 'gpu'
+                  value: '{#GPU}'
+            - uuid: '2012ffec32a342cdb8bbb2d9210dcbce'
+              name: 'GPU {#GPU}: Power draw'
+              type: 'DEPENDENT'
+              key: 'dcgm.gpu.power["{#GPU}"]'
+              delay: '0'
+              value_type: 'FLOAT'
+              units: 'W'
+              preprocessing:
+                - type: 'PROMETHEUS_PATTERN'
+                  parameters:
+                    - 'DCGM_FI_DEV_POWER_USAGE{gpu="{#GPU}"}'
+                    - 'function'
+                    - 'max'
+              master_item:
+                key: 'dcgm.get_metrics'
+              tags:
+                - tag: 'component'
+                  value: 'power'
+                - tag: 'gpu'
+                  value: '{#GPU}'
+            - uuid: '6b523ec22b284d1bb72174f33054644b'
+              name: 'GPU {#GPU}: SM clock'
+              type: 'DEPENDENT'
+              key: 'dcgm.gpu.sm_clock["{#GPU}"]'
+              delay: '0'
+              value_type: 'FLOAT'
+              units: 'Hz'
+              preprocessing:
+                - type: 'PROMETHEUS_PATTERN'
+                  parameters:
+                    - 'DCGM_FI_DEV_SM_CLOCK{gpu="{#GPU}"}'
+                    - 'function'
+                    - 'max'
+                - type: 'MULTIPLIER'
+                  parameters:
+                    - '1000000'
+              master_item:
+                key: 'dcgm.get_metrics'
+              tags:
+                - tag: 'component'
+                  value: 'clock'
+                - tag: 'gpu'
+                  value: '{#GPU}'
+            - uuid: '08cfee8311d64e6e8d640f93d6f42bb1'
+              name: 'GPU {#GPU}: Framebuffer used'
+              type: 'DEPENDENT'
+              key: 'dcgm.gpu.fb_used["{#GPU}"]'
+              delay: '0'
+              value_type: 'FLOAT'
+              units: 'B'
+              preprocessing:
+                - type: 'PROMETHEUS_PATTERN'
+                  parameters:
+                    - 'DCGM_FI_DEV_FB_USED{gpu="{#GPU}"}'
+                    - 'function'
+                    - 'max'
+                - type: 'MULTIPLIER'
+                  parameters:
+                    - '1048576'
+              master_item:
+                key: 'dcgm.get_metrics'
+              tags:
+                - tag: 'component'
+                  value: 'memory'
+                - tag: 'gpu'
+                  value: '{#GPU}'
+            - uuid: 'e4f211f65fb544058f6f7c1af2f1f6ff'
+              name: 'GPU {#GPU}: Framebuffer free'
+              type: 'DEPENDENT'
+              key: 'dcgm.gpu.fb_free["{#GPU}"]'
+              delay: '0'
+              value_type: 'FLOAT'
+              units: 'B'
+              preprocessing:
+                - type: 'PROMETHEUS_PATTERN'
+                  parameters:
+                    - 'DCGM_FI_DEV_FB_FREE{gpu="{#GPU}"}'
+                    - 'function'
+                    - 'max'
+                - type: 'MULTIPLIER'
+                  parameters:
+                    - '1048576'
+              master_item:
+                key: 'dcgm.get_metrics'
+              tags:
+                - tag: 'component'
+                  value: 'memory'
+                - tag: 'gpu'
+                  value: '{#GPU}'
+            - uuid: '6d35b0e84e514049aed8008de026c1b2'
+              name: 'GPU {#GPU}: Last XID error'
+              type: 'DEPENDENT'
+              key: 'dcgm.gpu.xid["{#GPU}"]'
+              delay: '0'
+              value_type: 'FLOAT'
+              units: ''
+              preprocessing:
+                - type: 'PROMETHEUS_PATTERN'
+                  parameters:
+                    - 'DCGM_FI_DEV_XID_ERRORS{gpu="{#GPU}"}'
+                    - 'function'
+                    - 'max'
+              master_item:
+                key: 'dcgm.get_metrics'
+              tags:
+                - tag: 'component'
+                  value: 'errors'
+                - tag: 'gpu'
+                  value: '{#GPU}'
+            - uuid: '4d617579a3e5494385d167bdaf9fc89f'
+              name: 'GPU {#GPU}: PCIe replays per second'
+              type: 'DEPENDENT'
+              key: 'dcgm.gpu.pcie_replay.rate["{#GPU}"]'
+              delay: '0'
+              value_type: 'FLOAT'
+              units: '!replays/s'
+              preprocessing:
+                - type: 'PROMETHEUS_PATTERN'
+                  parameters:
+                    - 'DCGM_FI_DEV_PCIE_REPLAY_COUNTER{gpu="{#GPU}"}'
+                    - 'function'
+                    - 'max'
+                - type: 'CHANGE_PER_SECOND'
+                  parameters:
+                    - ''
+              master_item:
+                key: 'dcgm.get_metrics'
+              tags:
+                - tag: 'component'
+                  value: 'errors'
+                - tag: 'gpu'
+                  value: '{#GPU}'
+            - uuid: 'b4d64e5887e646e0b3e3607cf6162d6b'
+              name: 'GPU {#GPU}: Uncorrectable remapped rows'
+              type: 'DEPENDENT'
+              key: 'dcgm.gpu.remapped_rows.uncorrectable["{#GPU}"]'
+              delay: '0'
+              value_type: 'FLOAT'
+              units: ''
+              preprocessing:
+                - type: 'PROMETHEUS_PATTERN'
+                  parameters:
+                    - 'DCGM_FI_DEV_UNCORRECTABLE_REMAPPED_ROWS{gpu="{#GPU}"}'
+                    - 'function'
+                    - 'max'
+              master_item:
+                key: 'dcgm.get_metrics'
+              tags:
+                - tag: 'component'
+                  value: 'errors'
+                - tag: 'gpu'
+                  value: '{#GPU}'
+            - uuid: '6c37144f022d46f19f447c5f62b0e1e1'
+              name: 'GPU {#GPU}: Row remap failure'
+              type: 'DEPENDENT'
+              key: 'dcgm.gpu.row_remap_failure["{#GPU}"]'
+              delay: '0'
+              value_type: 'FLOAT'
+              units: ''
+              preprocessing:
+                - type: 'PROMETHEUS_PATTERN'
+                  parameters:
+                    - 'DCGM_FI_DEV_ROW_REMAP_FAILURE{gpu="{#GPU}"}'
+                    - 'function'
+                    - 'max'
+              master_item:
+                key: 'dcgm.get_metrics'
+              tags:
+                - tag: 'component'
+                  value: 'errors'
+                - tag: 'gpu'
+                  value: '{#GPU}'
+            - uuid: '3e359538387f4971aedc201a39a95cda'
+              name: 'GPU {#GPU}: Framebuffer used, in %'
+              type: 'CALCULATED'
+              key: 'dcgm.gpu.fb_used.pct["{#GPU}"]'
+              delay: '{$DCGM.INTERVAL}'
+              value_type: 'FLOAT'
+              units: '%'
+              params: '100*last(//dcgm.gpu.fb_used["{#GPU}"])/(last(//dcgm.gpu.fb_used["{#GPU}"])+last(//dcgm.gpu.fb_free["{#GPU}"])+1)'
+              tags:
+                - tag: 'component'
+                  value: 'memory'
+                - tag: 'gpu'
+                  value: '{#GPU}'
+          trigger_prototypes:
+            - uuid: '4f0864cb60b342d28ad8c8225f837dd0'
+              expression: 'last(/NVIDIA DCGM exporter by HTTP/dcgm.gpu.xid["{#GPU}"])<>0'
+              name: 'GPU {#GPU}: XID error {ITEM.LASTVALUE1} reported'
+              priority: 'WARNING'
+              manual_close: 'YES'
+              description: 'Check NVIDIA''s XID catalog. 13/31/43 are usually application faults.'
+              dependencies:
+                - name: 'GPU {#GPU}: fatal XID error {ITEM.LASTVALUE1} reported'
+                  expression: 'last(/NVIDIA DCGM exporter by HTTP/dcgm.gpu.xid["{#GPU}"])=48 or last(/NVIDIA DCGM exporter by HTTP/dcgm.gpu.xid["{#GPU}"])=74 or last(/NVIDIA DCGM exporter by HTTP/dcgm.gpu.xid["{#GPU}"])=79 or last(/NVIDIA DCGM exporter by HTTP/dcgm.gpu.xid["{#GPU}"])=92 or last(/NVIDIA DCGM exporter by HTTP/dcgm.gpu.xid["{#GPU}"])=94 or last(/NVIDIA DCGM exporter by HTTP/dcgm.gpu.xid["{#GPU}"])=95'
+            - uuid: '8317783ab41549b3a6897639cec6d5a9'
+              expression: 'last(/NVIDIA DCGM exporter by HTTP/dcgm.gpu.xid["{#GPU}"])=48 or last(/NVIDIA DCGM exporter by HTTP/dcgm.gpu.xid["{#GPU}"])=74 or last(/NVIDIA DCGM exporter by HTTP/dcgm.gpu.xid["{#GPU}"])=79 or last(/NVIDIA DCGM exporter by HTTP/dcgm.gpu.xid["{#GPU}"])=92 or last(/NVIDIA DCGM exporter by HTTP/dcgm.gpu.xid["{#GPU}"])=94 or last(/NVIDIA DCGM exporter by HTTP/dcgm.gpu.xid["{#GPU}"])=95'
+              name: 'GPU {#GPU}: fatal XID error {ITEM.LASTVALUE1} reported'
+              priority: 'HIGH'
+              manual_close: 'YES'
+              description: '48/92/94/95 = ECC, 74 = NVLink, 79 = GPU fell off the bus. Drain the node and reset or replace the GPU.'
+            - uuid: 'fa64aa0d0294419384d58fe756b8f877'
+              expression: 'min(/NVIDIA DCGM exporter by HTTP/dcgm.gpu.temp["{#GPU}"],10m)>{$DCGM.GPU.TEMP.MAX.WARN}'
+              name: 'GPU {#GPU}: temperature is high'
+              priority: 'WARNING'
+              description: 'Sustained high temperature leads to thermal throttling.'
+            - uuid: '9cd65579162f44b7b3085c538f0584ec'
+              expression: 'last(/NVIDIA DCGM exporter by HTTP/dcgm.gpu.row_remap_failure["{#GPU}"])>0'
+              name: 'GPU {#GPU}: HBM row remapping failed'
+              priority: 'HIGH'
+              description: 'The GPU has no spare rows left. Drain the node and open an RMA.'
+            - uuid: '6101fcd1b28f4ea4a91f81fa25386547'
+              expression: 'min(/NVIDIA DCGM exporter by HTTP/dcgm.gpu.fb_used.pct["{#GPU}"],15m)>{$DCGM.FB.USED.MAX.WARN}'
+              name: 'GPU {#GPU}: framebuffer is almost full'
+              priority: 'INFO'
+              description: 'Expected for vLLM/SGLang (they pre-allocate KV cache); a problem for other workloads.'
+          master_item:
+            key: 'dcgm.get_metrics'
+          preprocessing:
+            - type: 'PROMETHEUS_TO_JSON'
+              parameters:
+                - 'DCGM_FI_DEV_GPU_UTIL'
+          lld_macro_paths:
+            - lld_macro: '{#GPU}'
+              path: '$.labels.gpu'
+            - lld_macro: '{#UUID}'
+              path: '$.labels.UUID'
+            - lld_macro: '{#MODEL}'
+              path: '$.labels.modelName'
+      tags:
+        - tag: 'class'
+          value: 'hardware'
+        - tag: 'target'
+          value: 'nvidia-gpu'
+      macros:
+        - macro: '{$DCGM.METRICS.URL}'
+          value: 'http://localhost:9400/metrics'
+          description: 'dcgm-exporter /metrics URL.'
+        - macro: '{$DCGM.INTERVAL}'
+          value: '1m'
+          description: 'Polling interval.'
+        - macro: '{$DCGM.GPU.TEMP.MAX.WARN}'
+          value: '85'
+          description: 'GPU temperature (C) above this for 10m raises a warning.'
+        - macro: '{$DCGM.FB.USED.MAX.WARN}'
+          value: '98'
+          description: 'Framebuffer usage (%) above this for 15m raises a warning.'
+        - macro: '{$DCGM.NODATA.TIMEOUT}'
+          value: '5m'
+          description: 'No data period before the unavailable trigger fires.'

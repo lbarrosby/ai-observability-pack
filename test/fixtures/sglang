@@ -1,0 +1,105 @@
+# HELP sglang:num_running_reqs synthetic
+# TYPE sglang:num_running_reqs gauge
+sglang:num_running_reqs{model_name="meta-llama/Llama-3.1-8B-Instruct"} 9
+# HELP sglang:num_queue_reqs synthetic
+# TYPE sglang:num_queue_reqs gauge
+sglang:num_queue_reqs{model_name="meta-llama/Llama-3.1-8B-Instruct"} 2
+# HELP sglang:num_used_tokens synthetic
+# TYPE sglang:num_used_tokens gauge
+sglang:num_used_tokens{model_name="meta-llama/Llama-3.1-8B-Instruct"} 51234
+# HELP sglang:token_usage synthetic
+# TYPE sglang:token_usage gauge
+sglang:token_usage{model_name="meta-llama/Llama-3.1-8B-Instruct"} 0.41
+# HELP sglang:cache_hit_rate synthetic
+# TYPE sglang:cache_hit_rate gauge
+sglang:cache_hit_rate{model_name="meta-llama/Llama-3.1-8B-Instruct"} 0.37
+# HELP sglang:gen_throughput synthetic
+# TYPE sglang:gen_throughput gauge
+sglang:gen_throughput{model_name="meta-llama/Llama-3.1-8B-Instruct"} 1840.5
+# HELP sglang:prompt_tokens synthetic
+# TYPE sglang:prompt_tokens counter
+sglang:prompt_tokens_total{model_name="meta-llama/Llama-3.1-8B-Instruct"} 800000
+# HELP sglang:generation_tokens synthetic
+# TYPE sglang:generation_tokens counter
+sglang:generation_tokens_total{model_name="meta-llama/Llama-3.1-8B-Instruct"} 350000
+# HELP sglang:cached_tokens synthetic
+# TYPE sglang:cached_tokens counter
+sglang:cached_tokens_total{model_name="meta-llama/Llama-3.1-8B-Instruct"} 290000
+# HELP sglang:num_requests synthetic
+# TYPE sglang:num_requests counter
+sglang:num_requests_total{model_name="meta-llama/Llama-3.1-8B-Instruct"} 2100
+# HELP sglang:num_aborted_requests synthetic
+# TYPE sglang:num_aborted_requests counter
+sglang:num_aborted_requests_total{model_name="meta-llama/Llama-3.1-8B-Instruct"} 7
+# HELP sglang:time_to_first_token_seconds synthetic
+# TYPE sglang:time_to_first_token_seconds histogram
+sglang:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="0.01"} 0
+sglang:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="0.025"} 29
+sglang:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="0.05"} 191
+sglang:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="0.1"} 672
+sglang:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="0.25"} 1577
+sglang:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="0.5"} 1971
+sglang:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="1"} 2083
+sglang:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="2.5"} 2099
+sglang:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="5"} 2099
+sglang:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="10"} 2099
+sglang:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="20"} 2099
+sglang:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="40"} 2099
+sglang:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="80"} 2099
+sglang:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="+Inf"} 2100
+sglang:time_to_first_token_seconds_sum{model_name="meta-llama/Llama-3.1-8B-Instruct"} 420.0
+sglang:time_to_first_token_seconds_count{model_name="meta-llama/Llama-3.1-8B-Instruct"} 2100
+# HELP sglang:inter_token_latency_seconds synthetic
+# TYPE sglang:inter_token_latency_seconds histogram
+sglang:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="0.01"} 112158
+sglang:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="0.025"} 262993
+sglang:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="0.05"} 328604
+sglang:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="0.1"} 347222
+sglang:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="0.25"} 349934
+sglang:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="0.5"} 349998
+sglang:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="1"} 349999
+sglang:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="2.5"} 349999
+sglang:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="5"} 349999
+sglang:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="10"} 349999
+sglang:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="20"} 350000
+sglang:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="40"} 350000
+sglang:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="80"} 350000
+sglang:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="+Inf"} 350000
+sglang:inter_token_latency_seconds_sum{model_name="meta-llama/Llama-3.1-8B-Instruct"} 7000.0
+sglang:inter_token_latency_seconds_count{model_name="meta-llama/Llama-3.1-8B-Instruct"} 350000
+# HELP sglang:e2e_request_latency_seconds synthetic
+# TYPE sglang:e2e_request_latency_seconds histogram
+sglang:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",is_streaming="true",le="0.01"} 0
+sglang:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",is_streaming="true",le="0.025"} 0
+sglang:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",is_streaming="true",le="0.05"} 0
+sglang:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",is_streaming="true",le="0.1"} 0
+sglang:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",is_streaming="true",le="0.25"} 4
+sglang:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",is_streaming="true",le="0.5"} 48
+sglang:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",is_streaming="true",le="1"} 271
+sglang:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",is_streaming="true",le="2.5"} 1063
+sglang:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",is_streaming="true",le="5"} 1703
+sglang:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",is_streaming="true",le="10"} 2015
+sglang:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",is_streaming="true",le="20"} 2090
+sglang:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",is_streaming="true",le="40"} 2099
+sglang:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",is_streaming="true",le="80"} 2099
+sglang:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",is_streaming="true",le="+Inf"} 2100
+sglang:e2e_request_latency_seconds_sum{model_name="meta-llama/Llama-3.1-8B-Instruct",is_streaming="true"} 7140.0
+sglang:e2e_request_latency_seconds_count{model_name="meta-llama/Llama-3.1-8B-Instruct",is_streaming="true"} 2100
+# HELP sglang:queue_time_seconds synthetic
+# TYPE sglang:queue_time_seconds histogram
+sglang:queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="0.01"} 191
+sglang:queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="0.025"} 893
+sglang:queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="0.05"} 1577
+sglang:queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="0.1"} 1971
+sglang:queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="0.25"} 2092
+sglang:queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="0.5"} 2099
+sglang:queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="1"} 2099
+sglang:queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="2.5"} 2099
+sglang:queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="5"} 2099
+sglang:queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="10"} 2099
+sglang:queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="20"} 2099
+sglang:queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="40"} 2100
+sglang:queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="80"} 2100
+sglang:queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",le="+Inf"} 2100
+sglang:queue_time_seconds_sum{model_name="meta-llama/Llama-3.1-8B-Instruct"} 84.0
+sglang:queue_time_seconds_count{model_name="meta-llama/Llama-3.1-8B-Instruct"} 2100

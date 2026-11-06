@@ -1,0 +1,44 @@
+# HELP kn_revision_pods_desired synthetic
+# TYPE kn_revision_pods_desired gauge
+kn_revision_pods_desired{k8s_namespace_name="models",kn_revision_name="sklearn-iris-predictor-00001",kn_service_name="sklearn-iris-predictor",kn_configuration_name="sklearn-iris-predictor"} 2
+kn_revision_pods_desired{k8s_namespace_name="models",kn_revision_name="llm-chat-predictor-00003",kn_service_name="llm-chat-predictor",kn_configuration_name="llm-chat-predictor"} 2
+# HELP kn_revision_pods_requested synthetic
+# TYPE kn_revision_pods_requested gauge
+kn_revision_pods_requested{k8s_namespace_name="models",kn_revision_name="sklearn-iris-predictor-00001",kn_service_name="sklearn-iris-predictor",kn_configuration_name="sklearn-iris-predictor"} 2
+kn_revision_pods_requested{k8s_namespace_name="models",kn_revision_name="llm-chat-predictor-00003",kn_service_name="llm-chat-predictor",kn_configuration_name="llm-chat-predictor"} 2
+# HELP kn_revision_pods_count synthetic
+# TYPE kn_revision_pods_count gauge
+kn_revision_pods_count{k8s_namespace_name="models",kn_revision_name="sklearn-iris-predictor-00001",kn_service_name="sklearn-iris-predictor",kn_configuration_name="sklearn-iris-predictor"} 2
+kn_revision_pods_count{k8s_namespace_name="models",kn_revision_name="llm-chat-predictor-00003",kn_service_name="llm-chat-predictor",kn_configuration_name="llm-chat-predictor"} 2
+# HELP kn_revision_pods_not_ready_count synthetic
+# TYPE kn_revision_pods_not_ready_count gauge
+kn_revision_pods_not_ready_count{k8s_namespace_name="models",kn_revision_name="sklearn-iris-predictor-00001",kn_service_name="sklearn-iris-predictor",kn_configuration_name="sklearn-iris-predictor"} 0
+kn_revision_pods_not_ready_count{k8s_namespace_name="models",kn_revision_name="llm-chat-predictor-00003",kn_service_name="llm-chat-predictor",kn_configuration_name="llm-chat-predictor"} 0
+# HELP kn_revision_pods_pending_count synthetic
+# TYPE kn_revision_pods_pending_count gauge
+kn_revision_pods_pending_count{k8s_namespace_name="models",kn_revision_name="sklearn-iris-predictor-00001",kn_service_name="sklearn-iris-predictor",kn_configuration_name="sklearn-iris-predictor"} 0
+kn_revision_pods_pending_count{k8s_namespace_name="models",kn_revision_name="llm-chat-predictor-00003",kn_service_name="llm-chat-predictor",kn_configuration_name="llm-chat-predictor"} 0
+# HELP kn_revision_concurrency_stable synthetic
+# TYPE kn_revision_concurrency_stable gauge
+kn_revision_concurrency_stable{k8s_namespace_name="models",kn_revision_name="sklearn-iris-predictor-00001",kn_service_name="sklearn-iris-predictor",kn_configuration_name="sklearn-iris-predictor"} 3.2
+kn_revision_concurrency_stable{k8s_namespace_name="models",kn_revision_name="llm-chat-predictor-00003",kn_service_name="llm-chat-predictor",kn_configuration_name="llm-chat-predictor"} 3.2
+# HELP kn_revision_concurrency_panic synthetic
+# TYPE kn_revision_concurrency_panic gauge
+kn_revision_concurrency_panic{k8s_namespace_name="models",kn_revision_name="sklearn-iris-predictor-00001",kn_service_name="sklearn-iris-predictor",kn_configuration_name="sklearn-iris-predictor"} 3.5
+kn_revision_concurrency_panic{k8s_namespace_name="models",kn_revision_name="llm-chat-predictor-00003",kn_service_name="llm-chat-predictor",kn_configuration_name="llm-chat-predictor"} 3.5
+# HELP kn_revision_concurrency_target synthetic
+# TYPE kn_revision_concurrency_target gauge
+kn_revision_concurrency_target{k8s_namespace_name="models",kn_revision_name="sklearn-iris-predictor-00001",kn_service_name="sklearn-iris-predictor",kn_configuration_name="sklearn-iris-predictor"} 10
+kn_revision_concurrency_target{k8s_namespace_name="models",kn_revision_name="llm-chat-predictor-00003",kn_service_name="llm-chat-predictor",kn_configuration_name="llm-chat-predictor"} 10
+# HELP kn_revision_capacity_excess synthetic
+# TYPE kn_revision_capacity_excess gauge
+kn_revision_capacity_excess{k8s_namespace_name="models",kn_revision_name="sklearn-iris-predictor-00001",kn_service_name="sklearn-iris-predictor",kn_configuration_name="sklearn-iris-predictor"} 12
+kn_revision_capacity_excess{k8s_namespace_name="models",kn_revision_name="llm-chat-predictor-00003",kn_service_name="llm-chat-predictor",kn_configuration_name="llm-chat-predictor"} 12
+# HELP kn_revision_panic_mode synthetic
+# TYPE kn_revision_panic_mode gauge
+kn_revision_panic_mode{k8s_namespace_name="models",kn_revision_name="sklearn-iris-predictor-00001",kn_service_name="sklearn-iris-predictor",kn_configuration_name="sklearn-iris-predictor"} 0
+kn_revision_panic_mode{k8s_namespace_name="models",kn_revision_name="llm-chat-predictor-00003",kn_service_name="llm-chat-predictor",kn_configuration_name="llm-chat-predictor"} 0
+# HELP kn_revision_request_concurrency synthetic
+# TYPE kn_revision_request_concurrency gauge
+kn_revision_request_concurrency{k8s_namespace_name="models",kn_revision_name="sklearn-iris-predictor-00001",kn_service_name="sklearn-iris-predictor",kn_configuration_name="sklearn-iris-predictor"} 0
+kn_revision_request_concurrency{k8s_namespace_name="models",kn_revision_name="llm-chat-predictor-00003",kn_service_name="llm-chat-predictor",kn_configuration_name="llm-chat-predictor"} 0

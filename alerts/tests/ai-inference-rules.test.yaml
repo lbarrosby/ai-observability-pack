@@ -1,0 +1,125 @@
+rule_files:
+  - ../ai-inference-rules.yaml
+
+evaluation_interval: 1m
+
+tests:
+  - name: vLLM KV cache, including the older metric name
+    interval: 1m
+    input_series:
+      - series: 'vllm:kv_cache_usage_perc{namespace="llm", pod="vllm-0", model_name="llama", engine="0"}'
+        values: '0.97x20'
+      - series: 'vllm:gpu_cache_usage_perc{namespace="llm", pod="vllm-old-0", model_name="mistral", engine="0"}'
+        values: '0.99x20'
+      - series: 'vllm:kv_cache_usage_perc{namespace="llm", pod="vllm-1", model_name="qwen", engine="0"}'
+        values: '0.50x20'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: VLLMKVCacheNearlyFull
+        exp_alerts: []
+      - eval_time: 16m
+        alertname: VLLMKVCacheNearlyFull
+        exp_alerts:
+          - exp_labels: {severity: warning, namespace: llm, pod: vllm-0, model_name: llama}
+            exp_annotations:
+              summary: "vLLM KV cache above 95% on llm/vllm-0"
+              description: "KV cache usage is 97%. New requests wait and running ones get preempted."
+              runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#vllmkvcachenearlyfull
+          - exp_labels: {severity: warning, namespace: llm, pod: vllm-old-0, model_name: mistral}
+            exp_annotations:
+              summary: "vLLM KV cache above 95% on llm/vllm-old-0"
+              description: "KV cache usage is 99%. New requests wait and running ones get preempted."
+              runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#vllmkvcachenearlyfull
+
+  - name: vLLM router series do not trigger engine alerts
+    interval: 1m
+    input_series:
+      - series: 'vllm:num_requests_waiting{namespace="llm", pod="router-0", server="http://10.0.0.1:8000"}'
+        values: '50x20'
+    alert_rule_test:
+      - eval_time: 15m
+        alertname: VLLMRequestsQueueing
+        exp_alerts: []
+
+  - name: Router without healthy backends
+    interval: 1m
+    input_series:
+      - series: 'vllm:healthy_pods_total{namespace="llm", pod="router-0", server="http://10.0.0.1:8000"}'
+        values: '1 1 0 0 0 0 0'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: VLLMRouterNoHealthyBackends
+        exp_alerts: []
+      - eval_time: 5m
+        alertname: VLLMRouterNoHealthyBackends
+        exp_alerts:
+          - exp_labels: {severity: critical, namespace: llm, pod: router-0}
+            exp_annotations:
+              summary: "vLLM router llm/router-0 has no healthy backends"
+              description: "Every request routed now fails."
+              runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#vllmrouternohealthybackends
+
+  - name: XID errors
+    interval: 1m
+    input_series:
+      - series: 'DCGM_FI_DEV_XID_ERRORS{Hostname="node-1", gpu="0"}'
+        values: '0 0 13 13'
+      - series: 'DCGM_FI_DEV_XID_ERRORS{Hostname="node-1", gpu="1"}'
+        values: '0 0 79 79'
+    alert_rule_test:
+      - eval_time: 3m
+        alertname: GPUXidError
+        exp_alerts:
+          - exp_labels: {severity: warning, Hostname: node-1, gpu: "0"}
+            exp_annotations:
+              summary: "GPU 0 on node-1 reported XID 13"
+              description: "Look the code up in NVIDIA's XID catalog. 13/31/43 are usually application faults."
+              runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#gpuxiderror
+          - exp_labels: {severity: warning, Hostname: node-1, gpu: "1"}
+            exp_annotations:
+              summary: "GPU 1 on node-1 reported XID 79"
+              description: "Look the code up in NVIDIA's XID catalog. 13/31/43 are usually application faults."
+              runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#gpuxiderror
+      - eval_time: 3m
+        alertname: GPUFatalXidError
+        exp_alerts:
+          - exp_labels: {severity: critical, Hostname: node-1, gpu: "1"}
+            exp_annotations:
+              summary: "GPU 1 on node-1 reported fatal XID 79"
+              description: "XID 48/92/94/95 = ECC, 74 = NVLink, 79 = GPU fell off the bus. Drain the node and reset or replace the GPU."
+              runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#gpuxiderror
+
+  - name: LiteLLM deployment state
+    interval: 1m
+    input_series:
+      - series: 'litellm_deployment_state{model_group="gpt-4o", litellm_model_name="gpt-4o", api_provider="openai", model_id="a", api_base="x"}'
+        values: '2x10'
+      - series: 'litellm_deployment_state{model_group="claude", litellm_model_name="claude-sonnet", api_provider="anthropic", model_id="b", api_base="y"}'
+        values: '0x10'
+    alert_rule_test:
+      - eval_time: 6m
+        alertname: LiteLLMDeploymentOutage
+        exp_alerts:
+          - exp_labels: {severity: critical, model_group: gpt-4o, litellm_model_name: gpt-4o, api_provider: openai}
+            exp_annotations:
+              summary: "LiteLLM deployment gpt-4o (openai) is in complete outage"
+              description: "All recent calls to this upstream deployment failed."
+              runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#litellmdeploymentoutage
+
+  - name: Volcano unschedulable jobs
+    interval: 1m
+    input_series:
+      - series: 'volcano_unschedule_job_count'
+        values: '3x40'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: VolcanoUnschedulableJobs
+        exp_alerts: []
+      - eval_time: 31m
+        alertname: VolcanoUnschedulableJobs
+        exp_alerts:
+          - exp_labels: {severity: warning}
+            exp_annotations:
+              summary: "3 Volcano jobs cannot be scheduled"
+              description: "Jobs have been unschedulable for 30 minutes (queue quota, gang size or missing GPU capacity)."
+              runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#volcanounschedulablejobs

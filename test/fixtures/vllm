@@ -1,0 +1,308 @@
+# HELP vllm:num_requests_running synthetic
+# TYPE vllm:num_requests_running gauge
+vllm:num_requests_running{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 12
+vllm:num_requests_running{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 5
+# HELP vllm:num_requests_waiting synthetic
+# TYPE vllm:num_requests_waiting gauge
+vllm:num_requests_waiting{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 3
+vllm:num_requests_waiting{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 0
+# HELP vllm:kv_cache_usage_perc synthetic
+# TYPE vllm:kv_cache_usage_perc gauge
+vllm:kv_cache_usage_perc{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 0.72
+vllm:kv_cache_usage_perc{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 0.31
+# HELP vllm:prompt_tokens synthetic
+# TYPE vllm:prompt_tokens counter
+vllm:prompt_tokens_total{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 900000
+vllm:prompt_tokens_total{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 360000
+# HELP vllm:generation_tokens synthetic
+# TYPE vllm:generation_tokens counter
+vllm:generation_tokens_total{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 400000
+vllm:generation_tokens_total{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 160000
+# HELP vllm:prefix_cache_queries synthetic
+# TYPE vllm:prefix_cache_queries counter
+vllm:prefix_cache_queries_total{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 900000
+vllm:prefix_cache_queries_total{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 360000
+# HELP vllm:prefix_cache_hits synthetic
+# TYPE vllm:prefix_cache_hits counter
+vllm:prefix_cache_hits_total{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 300000
+vllm:prefix_cache_hits_total{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 120000
+# HELP vllm:num_preemptions synthetic
+# TYPE vllm:num_preemptions counter
+vllm:num_preemptions_total{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 12
+vllm:num_preemptions_total{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 4
+# HELP vllm:request_success synthetic
+# TYPE vllm:request_success counter
+vllm:request_success_total{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",finished_reason="stop"} 2000
+vllm:request_success_total{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",finished_reason="length"} 300
+vllm:request_success_total{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",finished_reason="abort"} 15
+vllm:request_success_total{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",finished_reason="stop"} 800
+vllm:request_success_total{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",finished_reason="length"} 120
+vllm:request_success_total{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",finished_reason="abort"} 6
+# HELP vllm:time_to_first_token_seconds synthetic
+# TYPE vllm:time_to_first_token_seconds histogram
+vllm:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.01"} 1
+vllm:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.025"} 44
+vllm:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.05"} 264
+vllm:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.1"} 848
+vllm:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.25"} 1819
+vllm:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.5"} 2192
+vllm:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="1"} 2287
+vllm:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="2.5"} 2299
+vllm:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="5"} 2299
+vllm:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="10"} 2299
+vllm:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="20"} 2299
+vllm:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="40"} 2299
+vllm:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="80"} 2299
+vllm:time_to_first_token_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="+Inf"} 2300
+vllm:time_to_first_token_seconds_sum{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 414.0
+vllm:time_to_first_token_seconds_count{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 2300
+vllm:time_to_first_token_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.01"} 0
+vllm:time_to_first_token_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.025"} 17
+vllm:time_to_first_token_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.05"} 105
+vllm:time_to_first_token_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.1"} 339
+vllm:time_to_first_token_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.25"} 727
+vllm:time_to_first_token_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.5"} 876
+vllm:time_to_first_token_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="1"} 914
+vllm:time_to_first_token_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="2.5"} 919
+vllm:time_to_first_token_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="5"} 919
+vllm:time_to_first_token_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="10"} 919
+vllm:time_to_first_token_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="20"} 919
+vllm:time_to_first_token_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="40"} 919
+vllm:time_to_first_token_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="80"} 919
+vllm:time_to_first_token_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="+Inf"} 920
+vllm:time_to_first_token_seconds_sum{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 165.6
+vllm:time_to_first_token_seconds_count{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 920
+# HELP vllm:inter_token_latency_seconds synthetic
+# TYPE vllm:inter_token_latency_seconds histogram
+vllm:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.01"} 91210
+vllm:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.025"} 262168
+vllm:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.05"} 358928
+vllm:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.1"} 393412
+vllm:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.25"} 399791
+vllm:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.5"} 399993
+vllm:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="1"} 399999
+vllm:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="2.5"} 399999
+vllm:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="5"} 399999
+vllm:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="10"} 399999
+vllm:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="20"} 400000
+vllm:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="40"} 400000
+vllm:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="80"} 400000
+vllm:inter_token_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="+Inf"} 400000
+vllm:inter_token_latency_seconds_sum{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 10000.0
+vllm:inter_token_latency_seconds_count{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 400000
+vllm:inter_token_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.01"} 36484
+vllm:inter_token_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.025"} 104867
+vllm:inter_token_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.05"} 143571
+vllm:inter_token_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.1"} 157365
+vllm:inter_token_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.25"} 159916
+vllm:inter_token_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.5"} 159997
+vllm:inter_token_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="1"} 159999
+vllm:inter_token_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="2.5"} 159999
+vllm:inter_token_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="5"} 159999
+vllm:inter_token_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="10"} 159999
+vllm:inter_token_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="20"} 160000
+vllm:inter_token_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="40"} 160000
+vllm:inter_token_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="80"} 160000
+vllm:inter_token_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="+Inf"} 160000
+vllm:inter_token_latency_seconds_sum{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 4000.0
+vllm:inter_token_latency_seconds_count{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 160000
+# HELP vllm:e2e_request_latency_seconds synthetic
+# TYPE vllm:e2e_request_latency_seconds histogram
+vllm:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.01"} 0
+vllm:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.025"} 0
+vllm:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.05"} 0
+vllm:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.1"} 0
+vllm:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.25"} 2
+vllm:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.5"} 27
+vllm:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="1"} 187
+vllm:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="2.5"} 924
+vllm:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="5"} 1682
+vllm:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="10"} 2141
+vllm:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="20"} 2278
+vllm:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="40"} 2298
+vllm:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="80"} 2299
+vllm:e2e_request_latency_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="+Inf"} 2300
+vllm:e2e_request_latency_seconds_sum{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 9660.0
+vllm:e2e_request_latency_seconds_count{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 2300
+vllm:e2e_request_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.01"} 0
+vllm:e2e_request_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.025"} 0
+vllm:e2e_request_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.05"} 0
+vllm:e2e_request_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.1"} 0
+vllm:e2e_request_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.25"} 0
+vllm:e2e_request_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.5"} 10
+vllm:e2e_request_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="1"} 75
+vllm:e2e_request_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="2.5"} 369
+vllm:e2e_request_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="5"} 673
+vllm:e2e_request_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="10"} 856
+vllm:e2e_request_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="20"} 911
+vllm:e2e_request_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="40"} 919
+vllm:e2e_request_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="80"} 919
+vllm:e2e_request_latency_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="+Inf"} 920
+vllm:e2e_request_latency_seconds_sum{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 3864.0
+vllm:e2e_request_latency_seconds_count{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 920
+# HELP vllm:request_queue_time_seconds synthetic
+# TYPE vllm:request_queue_time_seconds histogram
+vllm:request_queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.01"} 123
+vllm:request_queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.025"} 737
+vllm:request_queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.05"} 1507
+vllm:request_queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.1"} 2063
+vllm:request_queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.25"} 2281
+vllm:request_queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.5"} 2298
+vllm:request_queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="1"} 2299
+vllm:request_queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="2.5"} 2299
+vllm:request_queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="5"} 2299
+vllm:request_queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="10"} 2299
+vllm:request_queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="20"} 2299
+vllm:request_queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="40"} 2300
+vllm:request_queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="80"} 2300
+vllm:request_queue_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="+Inf"} 2300
+vllm:request_queue_time_seconds_sum{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 115.0
+vllm:request_queue_time_seconds_count{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 2300
+vllm:request_queue_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.01"} 49
+vllm:request_queue_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.025"} 294
+vllm:request_queue_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.05"} 602
+vllm:request_queue_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.1"} 825
+vllm:request_queue_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.25"} 912
+vllm:request_queue_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.5"} 919
+vllm:request_queue_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="1"} 919
+vllm:request_queue_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="2.5"} 919
+vllm:request_queue_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="5"} 919
+vllm:request_queue_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="10"} 919
+vllm:request_queue_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="20"} 919
+vllm:request_queue_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="40"} 920
+vllm:request_queue_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="80"} 920
+vllm:request_queue_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="+Inf"} 920
+vllm:request_queue_time_seconds_sum{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 46.0
+vllm:request_queue_time_seconds_count{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 920
+# HELP vllm:request_prefill_time_seconds synthetic
+# TYPE vllm:request_prefill_time_seconds histogram
+vllm:request_prefill_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.01"} 7
+vllm:request_prefill_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.025"} 136
+vllm:request_prefill_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.05"} 560
+vllm:request_prefill_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.1"} 1307
+vllm:request_prefill_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.25"} 2084
+vllm:request_prefill_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.5"} 2266
+vllm:request_prefill_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="1"} 2297
+vllm:request_prefill_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="2.5"} 2299
+vllm:request_prefill_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="5"} 2299
+vllm:request_prefill_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="10"} 2299
+vllm:request_prefill_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="20"} 2299
+vllm:request_prefill_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="40"} 2299
+vllm:request_prefill_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="80"} 2300
+vllm:request_prefill_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="+Inf"} 2300
+vllm:request_prefill_time_seconds_sum{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 276.0
+vllm:request_prefill_time_seconds_count{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 2300
+vllm:request_prefill_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.01"} 3
+vllm:request_prefill_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.025"} 54
+vllm:request_prefill_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.05"} 224
+vllm:request_prefill_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.1"} 522
+vllm:request_prefill_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.25"} 833
+vllm:request_prefill_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.5"} 906
+vllm:request_prefill_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="1"} 918
+vllm:request_prefill_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="2.5"} 919
+vllm:request_prefill_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="5"} 919
+vllm:request_prefill_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="10"} 919
+vllm:request_prefill_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="20"} 919
+vllm:request_prefill_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="40"} 919
+vllm:request_prefill_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="80"} 920
+vllm:request_prefill_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="+Inf"} 920
+vllm:request_prefill_time_seconds_sum{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 110.39999999999999
+vllm:request_prefill_time_seconds_count{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 920
+# HELP vllm:request_decode_time_seconds synthetic
+# TYPE vllm:request_decode_time_seconds histogram
+vllm:request_decode_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.01"} 0
+vllm:request_decode_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.025"} 0
+vllm:request_decode_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.05"} 0
+vllm:request_decode_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.1"} 0
+vllm:request_decode_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.25"} 2
+vllm:request_decode_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="0.5"} 32
+vllm:request_decode_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="1"} 209
+vllm:request_decode_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="2.5"} 978
+vllm:request_decode_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="5"} 1728
+vllm:request_decode_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="10"} 2159
+vllm:request_decode_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="20"} 2281
+vllm:request_decode_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="40"} 2298
+vllm:request_decode_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="80"} 2299
+vllm:request_decode_time_seconds_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="+Inf"} 2300
+vllm:request_decode_time_seconds_sum{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 9200.0
+vllm:request_decode_time_seconds_count{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 2300
+vllm:request_decode_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.01"} 0
+vllm:request_decode_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.025"} 0
+vllm:request_decode_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.05"} 0
+vllm:request_decode_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.1"} 0
+vllm:request_decode_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.25"} 0
+vllm:request_decode_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="0.5"} 12
+vllm:request_decode_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="1"} 83
+vllm:request_decode_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="2.5"} 391
+vllm:request_decode_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="5"} 691
+vllm:request_decode_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="10"} 863
+vllm:request_decode_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="20"} 912
+vllm:request_decode_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="40"} 919
+vllm:request_decode_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="80"} 919
+vllm:request_decode_time_seconds_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="+Inf"} 920
+vllm:request_decode_time_seconds_sum{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 3680.0
+vllm:request_decode_time_seconds_count{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 920
+# HELP vllm:request_prompt_tokens synthetic
+# TYPE vllm:request_prompt_tokens histogram
+vllm:request_prompt_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="1"} 0
+vllm:request_prompt_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="8"} 0
+vllm:request_prompt_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="16"} 0
+vllm:request_prompt_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="32"} 7
+vllm:request_prompt_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="64"} 72
+vllm:request_prompt_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="128"} 369
+vllm:request_prompt_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="256"} 1034
+vllm:request_prompt_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="512"} 1771
+vllm:request_prompt_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="1024"} 2175
+vllm:request_prompt_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="2048"} 2284
+vllm:request_prompt_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="4096"} 2299
+vllm:request_prompt_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="8192"} 2299
+vllm:request_prompt_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="+Inf"} 2300
+vllm:request_prompt_tokens_sum{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 897000
+vllm:request_prompt_tokens_count{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 2300
+vllm:request_prompt_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="1"} 0
+vllm:request_prompt_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="8"} 0
+vllm:request_prompt_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="16"} 0
+vllm:request_prompt_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="32"} 2
+vllm:request_prompt_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="64"} 28
+vllm:request_prompt_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="128"} 147
+vllm:request_prompt_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="256"} 413
+vllm:request_prompt_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="512"} 708
+vllm:request_prompt_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="1024"} 870
+vllm:request_prompt_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="2048"} 913
+vllm:request_prompt_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="4096"} 919
+vllm:request_prompt_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="8192"} 919
+vllm:request_prompt_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="+Inf"} 920
+vllm:request_prompt_tokens_sum{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 358800
+vllm:request_prompt_tokens_count{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 920
+# HELP vllm:request_generation_tokens synthetic
+# TYPE vllm:request_generation_tokens histogram
+vllm:request_generation_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="1"} 0
+vllm:request_generation_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="8"} 0
+vllm:request_generation_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="16"} 12
+vllm:request_generation_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="32"} 105
+vllm:request_generation_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="64"} 473
+vllm:request_generation_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="128"} 1191
+vllm:request_generation_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="256"} 1883
+vllm:request_generation_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="512"} 2213
+vllm:request_generation_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="1024"} 2290
+vllm:request_generation_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="2048"} 2299
+vllm:request_generation_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="4096"} 2299
+vllm:request_generation_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="8192"} 2299
+vllm:request_generation_tokens_bucket{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0",le="+Inf"} 2300
+vllm:request_generation_tokens_sum{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 391000
+vllm:request_generation_tokens_count{model_name="meta-llama/Llama-3.1-8B-Instruct",engine="0"} 2300
+vllm:request_generation_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="1"} 0
+vllm:request_generation_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="8"} 0
+vllm:request_generation_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="16"} 4
+vllm:request_generation_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="32"} 42
+vllm:request_generation_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="64"} 189
+vllm:request_generation_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="128"} 476
+vllm:request_generation_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="256"} 753
+vllm:request_generation_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="512"} 885
+vllm:request_generation_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="1024"} 916
+vllm:request_generation_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="2048"} 919
+vllm:request_generation_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="4096"} 919
+vllm:request_generation_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="8192"} 919
+vllm:request_generation_tokens_bucket{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0",le="+Inf"} 920
+vllm:request_generation_tokens_sum{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 156400
+vllm:request_generation_tokens_count{model_name="Qwen/Qwen2.5-7B-Instruct",engine="0"} 920

@@ -1,0 +1,40 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+env:
+  PROMETHEUS_VERSION: 3.16.0
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Generated files are up to date
+        run: |
+          python3 scripts/build_dashboards.py
+          python3 scripts/build_prometheusrule.py
+          python3 scripts/build_zabbix.py
+          python3 scripts/make_synthetic_fixtures.py
+          git diff --exit-code
+      - name: Lint dashboards
+        run: python3 scripts/check_dashboards.py
+      - name: Install Prometheus
+        run: |
+          curl -sSfL "https://github.com/prometheus/prometheus/releases/download/v${PROMETHEUS_VERSION}/prometheus-${PROMETHEUS_VERSION}.linux-amd64.tar.gz" | tar xz
+          echo "$PWD/prometheus-${PROMETHEUS_VERSION}.linux-amd64" >> "$GITHUB_PATH"
+      - name: Check and unit test alert rules
+        run: |
+          promtool check rules alerts/ai-inference-rules.yaml
+          promtool test rules alerts/tests/ai-inference-rules.test.yaml
+      - name: Run every query and rule against the fixtures
+        run: test/run.sh

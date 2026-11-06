@@ -1,0 +1,617 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 'a571c0d144b14fd4a87a9d9b2aa9fcd6'
+      name: 'Templates/Applications'
+  templates:
+    - uuid: '8da2bd47822f437b9f611555a4fd5790'
+      template: 'vLLM by HTTP'
+      name: 'vLLM by HTTP'
+      description: |
+        Monitors a vLLM OpenAI-compatible server (V1 engine) through its Prometheus endpoint. Set {$VLLM.METRICS.URL} on the host. Models are discovered from the model_name label.
+        
+        Source: https://github.com/lbarrosby/ai-observability-pack
+      vendor:
+        name: 'ai-observability-pack'
+        version: '7.0-1'
+      groups:
+        - name: 'Templates/Applications'
+      items:
+        - uuid: '493b6e5c1170420587a2865af41979bb'
+          name: 'Get metrics'
+          type: 'HTTP_AGENT'
+          key: 'vllm.get_metrics'
+          delay: '{$VLLM.INTERVAL}'
+          history: '0'
+          trends: '0'
+          value_type: 'TEXT'
+          description: 'Raw Prometheus exposition. Every other item depends on it.'
+          url: '{$VLLM.METRICS.URL}'
+          tags:
+            - tag: 'component'
+              value: 'raw'
+        - uuid: 'ef2b00f1ff7f41a598b8f52b6a38de70'
+          name: 'Requests running'
+          type: 'DEPENDENT'
+          key: 'vllm.requests.running'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: ''
+          description: 'Requests in the running batch (all models).'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'vllm:num_requests_running'
+                - 'function'
+                - 'sum'
+          master_item:
+            key: 'vllm.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'scheduler'
+          triggers:
+            - expression: 'nodata(/vLLM by HTTP/vllm.requests.running,{$VLLM.NODATA.TIMEOUT})=1'
+              name: 'vLLM: Metrics endpoint is unavailable'
+              priority: 'HIGH'
+              description: 'No data from {$VLLM.METRICS.URL}.'
+              uuid: '4ebb3003cf984a8ba234e2e264af4f5e'
+        - uuid: '296654d5419c4fd6ba843c21b349c4d6'
+          name: 'Requests waiting'
+          type: 'DEPENDENT'
+          key: 'vllm.requests.waiting'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: ''
+          description: 'Requests queued by the scheduler (all models).'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'vllm:num_requests_waiting'
+                - 'function'
+                - 'sum'
+          master_item:
+            key: 'vllm.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'scheduler'
+          triggers:
+            - expression: 'min(/vLLM by HTTP/vllm.requests.waiting,10m)>{$VLLM.WAITING.MAX.WARN}'
+              name: 'vLLM: Requests are queueing'
+              priority: 'WARNING'
+              description: 'The engine is saturated: check KV cache usage and max_num_seqs.'
+              uuid: '18035e8a3a3c4b708036f7887d7c4559'
+        - uuid: '4ca205baafc04cfdbfe07d45ada94c07'
+          name: 'KV cache usage'
+          type: 'DEPENDENT'
+          key: 'vllm.kv_cache.usage'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: '%'
+          description: 'Highest KV cache usage across engines.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'vllm:kv_cache_usage_perc'
+                - 'function'
+                - 'max'
+            - type: 'MULTIPLIER'
+              parameters:
+                - '100'
+          master_item:
+            key: 'vllm.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'cache'
+          triggers:
+            - expression: 'min(/vLLM by HTTP/vllm.kv_cache.usage,15m)>{$VLLM.KV_CACHE.MAX.WARN}'
+              name: 'vLLM: KV cache is nearly full'
+              priority: 'WARNING'
+              description: 'New requests wait and running ones get preempted.'
+              uuid: '04a4eabd387d466980937978730f2ce9'
+        - uuid: 'b23c4f33948f4b9fadecc1ef145d7196'
+          name: 'Preemptions per second'
+          type: 'DEPENDENT'
+          key: 'vllm.preemptions.rate'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: '!preemptions/s'
+          description: 'Requests preempted because the KV cache ran out.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'vllm:num_preemptions_total'
+                - 'function'
+                - 'sum'
+            - type: 'CHANGE_PER_SECOND'
+              parameters:
+                - ''
+          master_item:
+            key: 'vllm.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'cache'
+          triggers:
+            - expression: 'min(/vLLM by HTTP/vllm.preemptions.rate,15m)>{$VLLM.PREEMPTIONS.MAX.WARN}'
+              name: 'vLLM: Requests are being preempted'
+              priority: 'WARNING'
+              description: 'Sustained preemptions waste GPU time: add capacity or lower max_num_seqs.'
+              uuid: '09f7bd25399548498cfcdfbe14f6da9e'
+        - uuid: '249722e07fc24e4fa37663672a9121db'
+          name: 'Prompt tokens per second'
+          type: 'DEPENDENT'
+          key: 'vllm.prompt_tokens.rate'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: 'tok/s'
+          description: 'Prefill tokens processed per second.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'vllm:prompt_tokens_total'
+                - 'function'
+                - 'sum'
+            - type: 'CHANGE_PER_SECOND'
+              parameters:
+                - ''
+          master_item:
+            key: 'vllm.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'throughput'
+        - uuid: '277033a0b0984c259816ca8b46b831c5'
+          name: 'Generation tokens per second'
+          type: 'DEPENDENT'
+          key: 'vllm.generation_tokens.rate'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: 'tok/s'
+          description: 'Output tokens generated per second.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'vllm:generation_tokens_total'
+                - 'function'
+                - 'sum'
+            - type: 'CHANGE_PER_SECOND'
+              parameters:
+                - ''
+          master_item:
+            key: 'vllm.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'throughput'
+        - uuid: 'b9e0be835b12456ba5c1dec6270bd73c'
+          name: 'Finished requests per second'
+          type: 'DEPENDENT'
+          key: 'vllm.requests.finished.rate'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: 'rps'
+          description: 'Requests finished per second (any reason).'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'vllm:request_success_total'
+                - 'function'
+                - 'sum'
+            - type: 'CHANGE_PER_SECOND'
+              parameters:
+                - ''
+          master_item:
+            key: 'vllm.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'throughput'
+        - uuid: '0ec68795573a42fbb8ed0086c970e75a'
+          name: 'Aborted requests per second'
+          type: 'DEPENDENT'
+          key: 'vllm.requests.aborted.rate'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: 'rps'
+          description: 'Requests aborted per second (client disconnects and cancellations).'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'vllm:request_success_total{finished_reason="abort"}'
+                - 'function'
+                - 'sum'
+              error_handler: 'CUSTOM_VALUE'
+              error_handler_params: '0'
+            - type: 'CHANGE_PER_SECOND'
+              parameters:
+                - ''
+          master_item:
+            key: 'vllm.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'throughput'
+        - uuid: '5c02eb94525f45e6975dbcb3bc52f8d2'
+          name: 'Time to first token: sum rate'
+          type: 'DEPENDENT'
+          key: 'vllm.ttft.sum.rate'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: 's'
+          description: 'Per-second increase of the time to first token histogram sum.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'vllm:time_to_first_token_seconds_sum'
+                - 'function'
+                - 'sum'
+            - type: 'CHANGE_PER_SECOND'
+              parameters:
+                - ''
+          master_item:
+            key: 'vllm.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'raw'
+        - uuid: '1414f53afe5842ac9d19370dc1691bed'
+          name: 'Time to first token: count rate'
+          type: 'DEPENDENT'
+          key: 'vllm.ttft.count.rate'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: ''
+          description: 'Per-second increase of the time to first token histogram count.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'vllm:time_to_first_token_seconds_count'
+                - 'function'
+                - 'sum'
+            - type: 'CHANGE_PER_SECOND'
+              parameters:
+                - ''
+          master_item:
+            key: 'vllm.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'raw'
+        - uuid: '69c5aa2a6bbe431ca2b692157110bdbd'
+          name: 'Average time to first token'
+          type: 'CALCULATED'
+          key: 'vllm.ttft.avg'
+          delay: '{$VLLM.INTERVAL}'
+          value_type: 'FLOAT'
+          units: 's'
+          params: 'last(//vllm.ttft.sum.rate)/(last(//vllm.ttft.count.rate)+0.000001)'
+          description: 'Average time to first token over the last polling interval.'
+          tags:
+            - tag: 'component'
+              value: 'latency'
+          triggers:
+            - expression: 'min(/vLLM by HTTP/vllm.ttft.avg,10m)>{$VLLM.TTFT.MAX.WARN}'
+              name: 'vLLM: Time to first token is high'
+              priority: 'WARNING'
+              description: 'Average TTFT over the polling interval is above the threshold.'
+              uuid: 'fffe6345583c4e009f648f7a6a6a2f6f'
+        - uuid: '5d9940327ffd449dbcb6839cbd1e1cb6'
+          name: 'End-to-end latency: sum rate'
+          type: 'DEPENDENT'
+          key: 'vllm.e2e.sum.rate'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: 's'
+          description: 'Per-second increase of the end-to-end latency histogram sum.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'vllm:e2e_request_latency_seconds_sum'
+                - 'function'
+                - 'sum'
+            - type: 'CHANGE_PER_SECOND'
+              parameters:
+                - ''
+          master_item:
+            key: 'vllm.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'raw'
+        - uuid: '1d032ecfe40f415b818235a45d084351'
+          name: 'End-to-end latency: count rate'
+          type: 'DEPENDENT'
+          key: 'vllm.e2e.count.rate'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: ''
+          description: 'Per-second increase of the end-to-end latency histogram count.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'vllm:e2e_request_latency_seconds_count'
+                - 'function'
+                - 'sum'
+            - type: 'CHANGE_PER_SECOND'
+              parameters:
+                - ''
+          master_item:
+            key: 'vllm.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'raw'
+        - uuid: '1be9af696c324d18ba262347256022b8'
+          name: 'Average end-to-end latency'
+          type: 'CALCULATED'
+          key: 'vllm.e2e.avg'
+          delay: '{$VLLM.INTERVAL}'
+          value_type: 'FLOAT'
+          units: 's'
+          params: 'last(//vllm.e2e.sum.rate)/(last(//vllm.e2e.count.rate)+0.000001)'
+          description: 'Average end-to-end latency over the last polling interval.'
+          tags:
+            - tag: 'component'
+              value: 'latency'
+        - uuid: '4b103a9011124559b7bb8239bce891b7'
+          name: 'Inter-token latency: sum rate'
+          type: 'DEPENDENT'
+          key: 'vllm.itl.sum.rate'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: 's'
+          description: 'Per-second increase of the inter-token latency histogram sum.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'vllm:inter_token_latency_seconds_sum'
+                - 'function'
+                - 'sum'
+            - type: 'CHANGE_PER_SECOND'
+              parameters:
+                - ''
+          master_item:
+            key: 'vllm.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'raw'
+        - uuid: 'eae257fc5039481a862e61ad2fa3edac'
+          name: 'Inter-token latency: count rate'
+          type: 'DEPENDENT'
+          key: 'vllm.itl.count.rate'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: ''
+          description: 'Per-second increase of the inter-token latency histogram count.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'vllm:inter_token_latency_seconds_count'
+                - 'function'
+                - 'sum'
+            - type: 'CHANGE_PER_SECOND'
+              parameters:
+                - ''
+          master_item:
+            key: 'vllm.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'raw'
+        - uuid: 'ee218e02370047c89b7ffc247847dee9'
+          name: 'Average inter-token latency'
+          type: 'CALCULATED'
+          key: 'vllm.itl.avg'
+          delay: '{$VLLM.INTERVAL}'
+          value_type: 'FLOAT'
+          units: 's'
+          params: 'last(//vllm.itl.sum.rate)/(last(//vllm.itl.count.rate)+0.000001)'
+          description: 'Average inter-token latency over the last polling interval.'
+          tags:
+            - tag: 'component'
+              value: 'latency'
+        - uuid: '5a5586310f3d4752ad963495c8fbbf33'
+          name: 'Queue time: sum rate'
+          type: 'DEPENDENT'
+          key: 'vllm.queue.sum.rate'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: 's'
+          description: 'Per-second increase of the queue time histogram sum.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'vllm:request_queue_time_seconds_sum'
+                - 'function'
+                - 'sum'
+            - type: 'CHANGE_PER_SECOND'
+              parameters:
+                - ''
+          master_item:
+            key: 'vllm.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'raw'
+        - uuid: '5d4e66d394ca4251bf076dc508445686'
+          name: 'Queue time: count rate'
+          type: 'DEPENDENT'
+          key: 'vllm.queue.count.rate'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: ''
+          description: 'Per-second increase of the queue time histogram count.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'vllm:request_queue_time_seconds_count'
+                - 'function'
+                - 'sum'
+            - type: 'CHANGE_PER_SECOND'
+              parameters:
+                - ''
+          master_item:
+            key: 'vllm.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'raw'
+        - uuid: 'e93b899badb6454c938e7c3eca35915c'
+          name: 'Average queue time'
+          type: 'CALCULATED'
+          key: 'vllm.queue.avg'
+          delay: '{$VLLM.INTERVAL}'
+          value_type: 'FLOAT'
+          units: 's'
+          params: 'last(//vllm.queue.sum.rate)/(last(//vllm.queue.count.rate)+0.000001)'
+          description: 'Average queue time over the last polling interval.'
+          tags:
+            - tag: 'component'
+              value: 'latency'
+      discovery_rules:
+        - uuid: '4116db42238747709b7d3c7ccbf72e4b'
+          name: 'Model discovery'
+          type: 'DEPENDENT'
+          key: 'vllm.model.discovery'
+          delay: '0'
+          description: 'Discovers served models from the model_name label.'
+          item_prototypes:
+            - uuid: 'd76cebcaf5f8448db18b1cdc4fba9272'
+              name: 'Model {#MODEL}: Requests running'
+              type: 'DEPENDENT'
+              key: 'vllm.model.running["{#MODEL}"]'
+              delay: '0'
+              value_type: 'FLOAT'
+              units: ''
+              preprocessing:
+                - type: 'PROMETHEUS_PATTERN'
+                  parameters:
+                    - 'vllm:num_requests_running{model_name="{#MODEL}"}'
+                    - 'function'
+                    - 'sum'
+              master_item:
+                key: 'vllm.get_metrics'
+              tags:
+                - tag: 'component'
+                  value: 'model'
+                - tag: 'model'
+                  value: '{#MODEL}'
+            - uuid: 'dce2c9b650984531861836f39d86436f'
+              name: 'Model {#MODEL}: Requests waiting'
+              type: 'DEPENDENT'
+              key: 'vllm.model.waiting["{#MODEL}"]'
+              delay: '0'
+              value_type: 'FLOAT'
+              units: ''
+              preprocessing:
+                - type: 'PROMETHEUS_PATTERN'
+                  parameters:
+                    - 'vllm:num_requests_waiting{model_name="{#MODEL}"}'
+                    - 'function'
+                    - 'sum'
+              master_item:
+                key: 'vllm.get_metrics'
+              tags:
+                - tag: 'component'
+                  value: 'model'
+                - tag: 'model'
+                  value: '{#MODEL}'
+            - uuid: '2d8a2534dd634d37ab5b04e79372d7b6'
+              name: 'Model {#MODEL}: KV cache usage'
+              type: 'DEPENDENT'
+              key: 'vllm.model.kv_cache["{#MODEL}"]'
+              delay: '0'
+              value_type: 'FLOAT'
+              units: '%'
+              preprocessing:
+                - type: 'PROMETHEUS_PATTERN'
+                  parameters:
+                    - 'vllm:kv_cache_usage_perc{model_name="{#MODEL}"}'
+                    - 'function'
+                    - 'max'
+                - type: 'MULTIPLIER'
+                  parameters:
+                    - '100'
+              master_item:
+                key: 'vllm.get_metrics'
+              tags:
+                - tag: 'component'
+                  value: 'model'
+                - tag: 'model'
+                  value: '{#MODEL}'
+            - uuid: '0479ce3ffeea4c869f666a7e65a00b50'
+              name: 'Model {#MODEL}: Generation tokens per second'
+              type: 'DEPENDENT'
+              key: 'vllm.model.generation_tokens.rate["{#MODEL}"]'
+              delay: '0'
+              value_type: 'FLOAT'
+              units: 'tok/s'
+              preprocessing:
+                - type: 'PROMETHEUS_PATTERN'
+                  parameters:
+                    - 'vllm:generation_tokens_total{model_name="{#MODEL}"}'
+                    - 'function'
+                    - 'sum'
+                - type: 'CHANGE_PER_SECOND'
+                  parameters:
+                    - ''
+              master_item:
+                key: 'vllm.get_metrics'
+              tags:
+                - tag: 'component'
+                  value: 'model'
+                - tag: 'model'
+                  value: '{#MODEL}'
+            - uuid: '3bee2d73afcf4f96b62e0d9ab88748bb'
+              name: 'Model {#MODEL}: Prompt tokens per second'
+              type: 'DEPENDENT'
+              key: 'vllm.model.prompt_tokens.rate["{#MODEL}"]'
+              delay: '0'
+              value_type: 'FLOAT'
+              units: 'tok/s'
+              preprocessing:
+                - type: 'PROMETHEUS_PATTERN'
+                  parameters:
+                    - 'vllm:prompt_tokens_total{model_name="{#MODEL}"}'
+                    - 'function'
+                    - 'sum'
+                - type: 'CHANGE_PER_SECOND'
+                  parameters:
+                    - ''
+              master_item:
+                key: 'vllm.get_metrics'
+              tags:
+                - tag: 'component'
+                  value: 'model'
+                - tag: 'model'
+                  value: '{#MODEL}'
+          trigger_prototypes:
+            - uuid: '46b5b3ea7e324f468a3690d2bf5f44a6'
+              expression: 'min(/vLLM by HTTP/vllm.model.waiting["{#MODEL}"],10m)>{$VLLM.WAITING.MAX.WARN}'
+              name: 'vLLM: Model {#MODEL}: requests are queueing'
+              priority: 'WARNING'
+              description: 'Waiting requests for this model stayed above the threshold for 10 minutes.'
+          master_item:
+            key: 'vllm.get_metrics'
+          preprocessing:
+            - type: 'PROMETHEUS_TO_JSON'
+              parameters:
+                - 'vllm:num_requests_running{model_name=~".+"}'
+            - type: 'JAVASCRIPT'
+              parameters:
+                - None
+      tags:
+        - tag: 'class'
+          value: 'software'
+        - tag: 'target'
+          value: 'vllm'
+      macros:
+        - macro: '{$VLLM.METRICS.URL}'
+          value: 'http://localhost:8000/metrics'
+          description: 'vLLM /metrics URL.'
+        - macro: '{$VLLM.INTERVAL}'
+          value: '1m'
+          description: 'Polling interval.'
+        - macro: '{$VLLM.WAITING.MAX.WARN}'
+          value: '10'
+          description: 'Waiting requests above this for 10m raise a warning.'
+        - macro: '{$VLLM.KV_CACHE.MAX.WARN}'
+          value: '95'
+          description: 'KV cache usage (%) above this for 15m raises a warning.'
+        - macro: '{$VLLM.PREEMPTIONS.MAX.WARN}'
+          value: '0.1'
+          description: 'Preemptions per second above this for 15m raise a warning.'
+        - macro: '{$VLLM.TTFT.MAX.WARN}'
+          value: '2'
+          description: 'Average time to first token (s) above this for 10m raises a warning.'
+        - macro: '{$VLLM.NODATA.TIMEOUT}'
+          value: '5m'
+          description: 'No data period before the unavailable trigger fires.'

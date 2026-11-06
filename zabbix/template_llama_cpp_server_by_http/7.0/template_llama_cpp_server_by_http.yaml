@@ -1,0 +1,276 @@
+zabbix_export:
+  version: '7.0'
+  template_groups:
+    - uuid: 'a571c0d144b14fd4a87a9d9b2aa9fcd6'
+      name: 'Templates/Applications'
+  templates:
+    - uuid: '93f57a9e9de94df4b24c279c24d332f2'
+      template: 'llama.cpp server by HTTP'
+      name: 'llama.cpp server by HTTP'
+      description: |
+        Monitors llama.cpp llama-server through its Prometheus endpoint. Start the server with --metrics. Set {$LLAMACPP.METRICS.URL} on the host.
+        
+        Source: https://github.com/lbarrosby/ai-observability-pack
+      vendor:
+        name: 'ai-observability-pack'
+        version: '7.0-1'
+      groups:
+        - name: 'Templates/Applications'
+      items:
+        - uuid: '7d7e9ba38bcc4c67ae2dc60657c48309'
+          name: 'Get metrics'
+          type: 'HTTP_AGENT'
+          key: 'llamacpp.get_metrics'
+          delay: '{$LLAMACPP.INTERVAL}'
+          history: '0'
+          trends: '0'
+          value_type: 'TEXT'
+          description: 'Raw Prometheus exposition. Every other item depends on it.'
+          url: '{$LLAMACPP.METRICS.URL}'
+          tags:
+            - tag: 'component'
+              value: 'raw'
+        - uuid: 'd2d5d87bccc0482e8a95dbd086261465'
+          name: 'Requests processing'
+          type: 'DEPENDENT'
+          key: 'llamacpp.requests.processing'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: ''
+          description: 'Requests currently using a slot.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'llamacpp:requests_processing'
+                - 'function'
+                - 'sum'
+          master_item:
+            key: 'llamacpp.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'requests'
+          triggers:
+            - expression: 'nodata(/llama.cpp server by HTTP/llamacpp.requests.processing,{$LLAMACPP.NODATA.TIMEOUT})=1'
+              name: 'llama.cpp: Metrics endpoint is unavailable'
+              priority: 'HIGH'
+              description: 'No data from {$LLAMACPP.METRICS.URL}. The server is down or started without --metrics.'
+              uuid: 'dbb92a5121e6423bb4d8db152a2b9f6f'
+        - uuid: '1a37567e12214ccda2dbf2fe76ae29d7'
+          name: 'Requests deferred'
+          type: 'DEPENDENT'
+          key: 'llamacpp.requests.deferred'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: ''
+          description: 'Requests waiting for a free slot.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'llamacpp:requests_deferred'
+                - 'function'
+                - 'sum'
+          master_item:
+            key: 'llamacpp.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'requests'
+          triggers:
+            - expression: 'min(/llama.cpp server by HTTP/llamacpp.requests.deferred,10m)>{$LLAMACPP.DEFERRED.MAX.WARN}'
+              name: 'llama.cpp: Requests are being deferred'
+              priority: 'WARNING'
+              description: 'Requests wait for a free slot. Raise --parallel or add replicas.'
+              uuid: 'e66887f8d9404d11a2b92191b444b4b9'
+        - uuid: '49f179c3ba9343e5b749bbcfd4ce1db8'
+          name: 'Prompt tokens per second'
+          type: 'DEPENDENT'
+          key: 'llamacpp.prompt_tokens.rate'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: 'tok/s'
+          description: 'Prompt tokens evaluated per second (cache hits excluded).'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'llamacpp:prompt_tokens_total'
+                - 'function'
+                - 'sum'
+            - type: 'CHANGE_PER_SECOND'
+              parameters:
+                - ''
+          master_item:
+            key: 'llamacpp.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'throughput'
+        - uuid: '9175f79190d5483ba18ca59f6d08af30'
+          name: 'Prompt tokens from cache per second'
+          type: 'DEPENDENT'
+          key: 'llamacpp.prompt_tokens_cached.rate'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: 'tok/s'
+          description: 'Prompt tokens reused from the KV cache per second.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'llamacpp:prompt_tokens_cached_total'
+                - 'function'
+                - 'sum'
+            - type: 'CHANGE_PER_SECOND'
+              parameters:
+                - ''
+          master_item:
+            key: 'llamacpp.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'throughput'
+        - uuid: 'd988e0f3c7294eeba24eacce42fc09b8'
+          name: 'Generated tokens per second'
+          type: 'DEPENDENT'
+          key: 'llamacpp.tokens_predicted.rate'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: 'tok/s'
+          description: 'Tokens generated per second.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'llamacpp:tokens_predicted_total'
+                - 'function'
+                - 'sum'
+            - type: 'CHANGE_PER_SECOND'
+              parameters:
+                - ''
+          master_item:
+            key: 'llamacpp.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'throughput'
+        - uuid: '2e36ef3477934594a18c98fc345187a0'
+          name: 'llama_decode calls per second'
+          type: 'DEPENDENT'
+          key: 'llamacpp.n_decode.rate'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: '!calls/s'
+          description: 'llama_decode() calls per second.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'llamacpp:n_decode_total'
+                - 'function'
+                - 'sum'
+            - type: 'CHANGE_PER_SECOND'
+              parameters:
+                - ''
+          master_item:
+            key: 'llamacpp.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'throughput'
+        - uuid: '73d751b3aebd469f98029f668ca04f2a'
+          name: 'Average prompt throughput'
+          type: 'DEPENDENT'
+          key: 'llamacpp.prompt_speed'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: 'tok/s'
+          description: 'Average prompt throughput reported by the server.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'llamacpp:prompt_tokens_seconds'
+                - 'function'
+                - 'sum'
+          master_item:
+            key: 'llamacpp.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'speed'
+        - uuid: 'a5ce52a0b6e746638e66a398053be66b'
+          name: 'Average generation throughput'
+          type: 'DEPENDENT'
+          key: 'llamacpp.generation_speed'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: 'tok/s'
+          description: 'Average generation throughput reported by the server.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'llamacpp:predicted_tokens_seconds'
+                - 'function'
+                - 'sum'
+          master_item:
+            key: 'llamacpp.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'speed'
+        - uuid: '9ff0d3d4104d4048876a5e5fcb06ad75'
+          name: 'Busy slots per decode'
+          type: 'DEPENDENT'
+          key: 'llamacpp.busy_slots_per_decode'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: ''
+          description: 'Average number of slots batched per llama_decode() call.'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'llamacpp:n_busy_slots_per_decode'
+                - 'function'
+                - 'sum'
+          master_item:
+            key: 'llamacpp.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'slots'
+        - uuid: '2887c55437654a208b59d88c277f3617'
+          name: 'Largest sequence length'
+          type: 'DEPENDENT'
+          key: 'llamacpp.n_tokens_max'
+          delay: '0'
+          value_type: 'FLOAT'
+          units: ''
+          description: 'Largest observed sequence length (prompt + generation).'
+          preprocessing:
+            - type: 'PROMETHEUS_PATTERN'
+              parameters:
+                - 'llamacpp:n_tokens_max'
+                - 'function'
+                - 'max'
+          master_item:
+            key: 'llamacpp.get_metrics'
+          tags:
+            - tag: 'component'
+              value: 'slots'
+        - uuid: '0e8ea93e40dc44b9901d60cfe1838db0'
+          name: 'Prompt cache reuse ratio'
+          type: 'CALCULATED'
+          key: 'llamacpp.prompt_cache.ratio'
+          delay: '{$LLAMACPP.INTERVAL}'
+          value_type: 'FLOAT'
+          units: '%'
+          params: '100*last(//llamacpp.prompt_tokens_cached.rate)/(last(//llamacpp.prompt_tokens_cached.rate)+last(//llamacpp.prompt_tokens.rate)+0.000001)'
+          description: 'Share of prompt tokens served from cache.'
+          tags:
+            - tag: 'component'
+              value: 'cache'
+      tags:
+        - tag: 'class'
+          value: 'software'
+        - tag: 'target'
+          value: 'llama.cpp'
+      macros:
+        - macro: '{$LLAMACPP.METRICS.URL}'
+          value: 'http://localhost:8080/metrics'
+          description: 'llama-server /metrics URL.'
+        - macro: '{$LLAMACPP.INTERVAL}'
+          value: '1m'
+          description: 'Polling interval.'
+        - macro: '{$LLAMACPP.DEFERRED.MAX.WARN}'
+          value: '2'
+          description: 'Deferred requests above this for 10m raise a warning.'
+        - macro: '{$LLAMACPP.NODATA.TIMEOUT}'
+          value: '5m'
+          description: 'No data period before the unavailable trigger fires.'
