@@ -128,3 +128,54 @@ Also used by `WeaviateSlowQueries` and `WeaviateShardsNotReady`.
 2. Shards stuck in LOADING after a restart: large collections load lazily; give the pod time and memory, or check the logs for corrupted LSM segments.
 3. Slow queries: a growing *Tombstones* line means deletes are waiting for cleanup; heavy batch imports compete with searches; the vector cache may be smaller than the index (`vectorCacheMaxObjects`).
 4. Memory pressure: HNSW lives in memory. Compare *Process memory* with the pod limit.
+
+## AgentgatewayHighErrorRatio
+
+Also used by `AgentgatewayMCPErrors` and `AgentgatewayConfigNotSynchronized`.
+
+1. On the agentgateway dashboard, *Gateway-generated responses* tells whether the 5xx come from the gateway (`NoHealthyBackend`, `Timeout`, `Internal`) or from the backend (`Upstream`).
+2. MCP errors: `gateway_error` means the call never reached a healthy MCP target (auth, routing, backend down); `protocol_error` is a JSON-RPC error from the target; `tool_error` is the tool returning `isError`, usually bad arguments from the agent.
+3. Config not synchronized: the gateway rejected the last config (file or xDS). Read the gateway logs for the validation error; the previous config keeps serving traffic.
+
+## EnvoyAIGatewayHighErrorRatio
+
+Also used by `EnvoyAIGatewayMCPErrors`.
+
+1. *Errors by model and type* on the Envoy AI Gateway dashboard shows which `AIServiceBackend` and model fail.
+2. Check the upstream provider status, the `BackendSecurityPolicy` credentials (expired API key or cloud role) and the provider rate limits.
+3. MCP errors: `invalid_session_id` after a gateway restart means clients must re-initialize; `unsupported_method` means a client uses a method the proxy does not route.
+
+## ToolHiveMCPHighErrorRatio
+
+Also used by `ToolHiveVMCPBackendErrors`.
+
+1. `thv logs <server>` or the MCPServer pod logs show why the MCP server answers with errors (missing secrets, upstream API failures).
+2. For stdio servers, a crash of the container shows as 5xx from the proxy; check restarts.
+3. vMCP backend errors: confirm the backend workload is running and that the vMCP outgoing auth to it is valid.
+
+## ToolHiveRateLimitFailOpen
+
+Also used by `ToolHiveDCRCapacityReached`.
+
+1. Fail-open means Redis did not answer the rate limit check, so requests went through unlimited. Check Redis availability, auth and latency (*Redis errors* by `error_type`).
+2. DCR cap reached: raise `storage.maxDCRClients` or let expired clients age out. Compare *DCR clients* with the configured cap.
+
+## MCPGatewayUpstreamWithoutTools
+
+Also used by `MCPGatewayUpstreamConnectionFailures`.
+
+1. The broker drops an upstream's tools after 3 consecutive failed health checks. Check the upstream MCP server pod and its `MCPServerRegistration` status.
+2. Connection failures with a reachable pod usually mean wrong URL/path, TLS or credentials for the upstream.
+3. Once the upstream answers again, discovery restores its tools on the next health tick.
+
+## KubernetesMCPServerToolErrors
+
+1. Check the server logs for `forbidden`: the ServiceAccount (or kubeconfig) lacks RBAC for the resource the agent asked for. Grant read access deliberately, or keep the server in `--read-only` and accept the errors.
+2. `not found` errors come from agents guessing names; they are harmless but point to prompts that need more context.
+
+## GenAIClientHighErrorRatio
+
+Also used by `GenAIAgentInvocationsFailing`.
+
+1. *Errors by type* on the GenAI dashboard: 429/RateLimitError means quota, timeouts mean the provider or the network, 401/403 means credentials.
+2. Agent invocations failing: look at tool execution latency and errors, the model provider errors for the agent's model, and the agent logs for the failed turn.

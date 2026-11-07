@@ -440,3 +440,164 @@ spec:
             summary: "Weaviate {{ $labels.namespace }}/{{ $labels.pod }} has {{ $value }} shards in {{ $labels.status }}"
             description: "Shards stuck outside READY do not serve reads or writes."
             runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#weaviatehigherrorratio
+
+    - name: agentgateway
+      rules:
+        - alert: AgentgatewayHighErrorRatio
+          expr: |
+            sum by (namespace, gateway, backend) (rate(agentgateway_requests_total{status=~"5.."}[5m]))
+              / sum by (namespace, gateway, backend) (rate(agentgateway_requests_total[5m])) > 0.05
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $value | humanizePercentage }} of agentgateway requests to {{ $labels.backend }} return 5xx"
+            description: "Check reason on the dashboard: NoHealthyBackend and Timeout come from the gateway, Upstream from the backend."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#agentgatewayhigherrorratio
+        - alert: AgentgatewayMCPErrors
+          expr: |
+            sum by (namespace, server) (rate(agentgateway_mcp_requests_total{outcome=~"tool_error|protocol_error|gateway_error"}[10m]))
+              / sum by (namespace, server) (rate(agentgateway_mcp_requests_total[10m])) > 0.1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $value | humanizePercentage }} of MCP requests to {{ $labels.server }} fail"
+            description: "MCP calls through agentgateway end in tool_error, protocol_error or gateway_error."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#agentgatewayhigherrorratio
+        - alert: AgentgatewayConfigNotSynchronized
+          expr: min by (namespace, pod) (agentgateway_config_synchronized) == 0
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "agentgateway {{ $labels.namespace }}/{{ $labels.pod }} failed to load its configuration"
+            description: "The last config load or reload was rejected, so the gateway serves a stale configuration."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#agentgatewayhigherrorratio
+
+    - name: envoy-ai-gateway
+      rules:
+        - alert: EnvoyAIGatewayHighErrorRatio
+          expr: |
+            sum by (namespace, gen_ai_backend, gen_ai_request_model) (rate(gen_ai_server_request_duration_seconds_count{otel_scope_name="envoyproxy/ai-gateway", error_type!=""}[5m]))
+              / sum by (namespace, gen_ai_backend, gen_ai_request_model) (rate(gen_ai_server_request_duration_seconds_count{otel_scope_name="envoyproxy/ai-gateway"}[5m])) > 0.05
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $value | humanizePercentage }} of {{ $labels.gen_ai_request_model }} requests via {{ $labels.gen_ai_backend }} fail"
+            description: "LLM requests through Envoy AI Gateway are recorded with error.type. Check the provider and the backend security policy."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#envoyaigatewayhigherrorratio
+        - alert: EnvoyAIGatewayMCPErrors
+          expr: |
+            sum by (namespace, mcp_backend) (rate(mcp_method_count_total{otel_scope_name="envoyproxy/ai-gateway", status!="success"}[10m]))
+              / sum by (namespace, mcp_backend) (rate(mcp_method_count_total{otel_scope_name="envoyproxy/ai-gateway"}[10m])) > 0.1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $value | humanizePercentage }} of MCP methods to {{ $labels.mcp_backend }} fail"
+            description: "MCP methods through the Envoy AI Gateway MCP proxy end with status failed or error."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#envoyaigatewayhigherrorratio
+
+    - name: toolhive
+      rules:
+        - alert: ToolHiveMCPHighErrorRatio
+          expr: |
+            sum by (namespace, server) (rate(toolhive_mcp_requests_total{status="error"}[5m]))
+              / sum by (namespace, server) (rate(toolhive_mcp_requests_total[5m])) > 0.1
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $value | humanizePercentage }} of requests to MCP server {{ $labels.server }} fail"
+            description: "The ToolHive proxy answers with HTTP status 400 or above. Check the MCP server container logs."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#toolhivemcphigherrorratio
+        - alert: ToolHiveVMCPBackendErrors
+          expr: |
+            sum by (namespace, target_workload_name) (rate(toolhive_vmcp_backend_errors_total[10m]))
+              / sum by (namespace, target_workload_name) (rate(toolhive_vmcp_backend_requests_total[10m])) > 0.1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $value | humanizePercentage }} of vMCP calls to {{ $labels.target_workload_name }} fail"
+            description: "The Virtual MCP server cannot reach or use this backend MCP server."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#toolhivemcphigherrorratio
+        - alert: ToolHiveRateLimitFailOpen
+          expr: sum by (namespace) (increase(toolhive_rate_limit_fail_open_total[15m])) > 0
+          for: 5m
+          labels:
+            severity: warning
+          annotations:
+            summary: "ToolHive rate limits in {{ $labels.namespace }} are failing open"
+            description: "Redis errors let {{ $value | humanize }} requests through without a rate limit decision in 15 minutes."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#toolhiveratelimitfailopen
+        - alert: ToolHiveDCRCapacityReached
+          expr: sum by (namespace, pod) (increase(toolhive_authserver_dcr_capacity_rejections_total[15m])) > 0
+          labels:
+            severity: warning
+          annotations:
+            summary: "ToolHive auth server {{ $labels.namespace }}/{{ $labels.pod }} rejects client registrations"
+            description: "The DCR client cap is reached: new MCP clients cannot register until old ones expire."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#toolhiveratelimitfailopen
+
+    - name: kuadrant-mcp-gateway
+      rules:
+        - alert: MCPGatewayUpstreamWithoutTools
+          expr: max by (namespace, server_name) (mcp_broker_tools_discovered) == 0
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "MCP Gateway serves no tools from {{ $labels.server_name }}"
+            description: "The broker dropped this upstream's tools after repeated connection failures, or the server lists none."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#mcpgatewayupstreamwithouttools
+        - alert: MCPGatewayUpstreamConnectionFailures
+          expr: sum by (namespace, server_name) (increase(mcp_broker_upstream_connection_failures_total[15m])) > 3
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "MCP Gateway cannot connect to {{ $labels.server_name }}"
+            description: "{{ $value | humanize }} connection or ping failures in 15 minutes."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#mcpgatewayupstreamwithouttools
+
+    - name: kubernetes-mcp-server
+      rules:
+        - alert: KubernetesMCPServerToolErrors
+          expr: |
+            sum by (namespace, tool_name) (rate(k8s_mcp_tool_errors_total[10m]))
+              / sum by (namespace, tool_name) (rate(k8s_mcp_tool_calls_total[10m])) > 0.2
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $value | humanizePercentage }} of {{ $labels.tool_name }} calls on kubernetes-mcp-server fail"
+            description: "Usually RBAC: the server's ServiceAccount or kubeconfig cannot read what the agent asks for."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#kubernetesmcpservertoolerrors
+
+    - name: genai-otel
+      rules:
+        - alert: GenAIClientHighErrorRatio
+          expr: |
+            sum by (job, gen_ai_provider_name, gen_ai_request_model) (rate(gen_ai_client_operation_duration_seconds_count{error_type!=""}[5m]))
+              / sum by (job, gen_ai_provider_name, gen_ai_request_model) (rate(gen_ai_client_operation_duration_seconds_count[5m])) > 0.05
+          for: 10m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $value | humanizePercentage }} of {{ $labels.gen_ai_request_model }} calls from {{ $labels.job }} fail"
+            description: "GenAI client operations are recorded with error.type (rate limits, timeouts, provider errors)."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#genaiclienthigherrorratio
+        - alert: GenAIAgentInvocationsFailing
+          expr: |
+            sum by (job, gen_ai_agent_name) (rate(gen_ai_invoke_agent_duration_seconds_count{error_type!=""}[10m]))
+              / sum by (job, gen_ai_agent_name) (rate(gen_ai_invoke_agent_duration_seconds_count[10m])) > 0.1
+          for: 15m
+          labels:
+            severity: warning
+          annotations:
+            summary: "{{ $value | humanizePercentage }} of {{ $labels.gen_ai_agent_name }} agent invocations fail"
+            description: "Agent turns end with error.type. Check the model provider, tool errors and the agent logs."
+            runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#genaiclienthigherrorratio

@@ -1,0 +1,79 @@
+# HELP mcp_broker_discovery synthetic
+# TYPE mcp_broker_discovery counter
+mcp_broker_discovery_total{server_name="mcp-system/github",status="success",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 600
+mcp_broker_discovery_total{server_name="mcp-system/github",status="failure",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 2
+mcp_broker_discovery_total{server_name="mcp-system/kubernetes",status="success",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 600
+mcp_broker_discovery_total{server_name="mcp-system/kubernetes",status="failure",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 2
+mcp_broker_discovery_total{server_name="mcp-system/weather",status="success",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 20
+mcp_broker_discovery_total{server_name="mcp-system/weather",status="failure",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 120
+# HELP mcp_broker_discovery_duration_seconds synthetic
+# TYPE mcp_broker_discovery_duration_seconds histogram
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="5"} 599
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="10"} 599
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="25"} 599
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="50"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="75"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="100"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="250"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="500"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="750"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="1000"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="2500"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="5000"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="7500"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="10000"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="+Inf"} 600
+mcp_broker_discovery_duration_seconds_sum{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 48.0
+mcp_broker_discovery_duration_seconds_count{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="5"} 599
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="10"} 599
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="25"} 599
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="50"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="75"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="100"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="250"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="500"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="750"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="1000"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="2500"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="5000"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="7500"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="10000"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="+Inf"} 600
+mcp_broker_discovery_duration_seconds_sum{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 48.0
+mcp_broker_discovery_duration_seconds_count{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="5"} 563
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="10"} 595
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="25"} 599
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="50"} 599
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="75"} 599
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="100"} 599
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="250"} 599
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="500"} 599
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="750"} 599
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="1000"} 599
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="2500"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="5000"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="7500"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="10000"} 600
+mcp_broker_discovery_duration_seconds_bucket{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version="",le="+Inf"} 600
+mcp_broker_discovery_duration_seconds_sum{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 1200.0
+mcp_broker_discovery_duration_seconds_count{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 600
+# HELP mcp_broker_tools_discovered synthetic
+# TYPE mcp_broker_tools_discovered gauge
+mcp_broker_tools_discovered{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 41
+mcp_broker_tools_discovered{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 23
+mcp_broker_tools_discovered{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 0
+# HELP mcp_broker_tools_list_response_bytes synthetic
+# TYPE mcp_broker_tools_list_response_bytes gauge
+mcp_broker_tools_list_response_bytes{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 52000
+mcp_broker_tools_list_response_bytes{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 31000
+mcp_broker_tools_list_response_bytes{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 0
+# HELP mcp_broker_upstream_connection_failures synthetic
+# TYPE mcp_broker_upstream_connection_failures counter
+mcp_broker_upstream_connection_failures_total{server_name="mcp-system/github",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 2
+mcp_broker_upstream_connection_failures_total{server_name="mcp-system/kubernetes",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 2
+mcp_broker_upstream_connection_failures_total{server_name="mcp-system/weather",otel_scope_name="mcp-broker",otel_scope_schema_url="",otel_scope_version=""} 300
+# HELP target_info synthetic
+# TYPE target_info gauge
+target_info{service_name="mcp-broker-router",service_version="v0.6.0"} 1

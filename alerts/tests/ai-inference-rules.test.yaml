@@ -185,3 +185,65 @@ tests:
               summary: "Weaviate vector-db/weaviate-0 has 2 shards in LOADING"
               description: "Shards stuck outside READY do not serve reads or writes."
               runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#weaviatehigherrorratio
+
+  - name: agentgateway MCP errors and config sync
+    interval: 1m
+    input_series:
+      - series: 'agentgateway_mcp_requests_total{namespace="agentgateway-system", pod="agw-0", server="github", outcome="success", method="tools/call"}'
+        values: '0+80x30'
+      - series: 'agentgateway_mcp_requests_total{namespace="agentgateway-system", pod="agw-0", server="github", outcome="gateway_error", method="tools/call"}'
+        values: '0+20x30'
+      - series: 'agentgateway_config_synchronized{namespace="agentgateway-system", pod="agw-0"}'
+        values: '1 1 0x20'
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: AgentgatewayMCPErrors
+        exp_alerts:
+          - exp_labels: {severity: warning, namespace: agentgateway-system, server: github}
+            exp_annotations:
+              summary: "20% of MCP requests to github fail"
+              description: "MCP calls through agentgateway end in tool_error, protocol_error or gateway_error."
+              runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#agentgatewayhigherrorratio
+      - eval_time: 14m
+        alertname: AgentgatewayConfigNotSynchronized
+        exp_alerts:
+          - exp_labels: {severity: warning, namespace: agentgateway-system, pod: agw-0}
+            exp_annotations:
+              summary: "agentgateway agentgateway-system/agw-0 failed to load its configuration"
+              description: "The last config load or reload was rejected, so the gateway serves a stale configuration."
+              runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#agentgatewayhigherrorratio
+
+  - name: Kuadrant MCP Gateway upstream without tools
+    interval: 1m
+    input_series:
+      - series: 'mcp_broker_tools_discovered{namespace="mcp-system", pod="broker-0", server_name="mcp-system/weather", otel_scope_name="mcp-broker"}'
+        values: '5 5 0x20'
+      - series: 'mcp_broker_tools_discovered{namespace="mcp-system", pod="broker-0", server_name="mcp-system/github", otel_scope_name="mcp-broker"}'
+        values: '41x22'
+    alert_rule_test:
+      - eval_time: 10m
+        alertname: MCPGatewayUpstreamWithoutTools
+        exp_alerts: []
+      - eval_time: 20m
+        alertname: MCPGatewayUpstreamWithoutTools
+        exp_alerts:
+          - exp_labels: {severity: warning, namespace: mcp-system, server_name: mcp-system/weather}
+            exp_annotations:
+              summary: "MCP Gateway serves no tools from mcp-system/weather"
+              description: "The broker dropped this upstream's tools after repeated connection failures, or the server lists none."
+              runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#mcpgatewayupstreamwithouttools
+
+  - name: ToolHive rate limit fail-open
+    interval: 1m
+    input_series:
+      - series: 'toolhive_rate_limit_fail_open_total{namespace="toolhive", pod="github-0", server="github", exported_namespace="toolhive"}'
+        values: '0 0 0 3 6 9 12 15 18 21 24 27 30 33 36 39 42 45 48 51'
+    alert_rule_test:
+      - eval_time: 12m
+        alertname: ToolHiveRateLimitFailOpen
+        exp_alerts:
+          - exp_labels: {severity: warning, namespace: toolhive}
+            exp_annotations:
+              summary: "ToolHive rate limits in toolhive are failing open"
+              description: "Redis errors let 30 requests through without a rate limit decision in 15 minutes."
+              runbook_url: https://github.com/lbarrosby/ai-observability-pack/blob/main/alerts/RUNBOOK.md#toolhiveratelimitfailopen

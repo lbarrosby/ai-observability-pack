@@ -167,6 +167,10 @@ f.g("litellm_remaining_tokens_metric", "gauge", [({"model_group": m, "api_provid
 f.g("litellm_deployment_cooled_down", "counter", [({"litellm_model_name": m, "model_id": m + "-id", "api_base": "https://api.example", "api_provider": p, "exception_status": "429"}, 2) for m, p, k in R])
 f.g("litellm_remaining_team_budget_metric", "gauge", [({"team": "t1", "team_alias": "platform"}, 412.5)])
 f.g("litellm_remaining_api_key_budget_metric", "gauge", [({"hashed_api_key": base["hashed_api_key"], "api_key_alias": "svc-chatbot"}, 88.2)])
+MT = [("github", "create_issue", 120), ("github", "search_code", 340), ("kubernetes", "pods_list", 510), ("jira", "get_issue", 80)]
+mlb = {"hashed_api_key": base["hashed_api_key"], "api_key_alias": "svc-chatbot", "team": "t1", "team_alias": "platform", "user": "", "end_user": ""}
+f.g("litellm_mcp_tool_calls_total", "counter", [({**mlb, "mcp_tool_name": t, "mcp_server_name": srv}, n) for srv, t, n in MT])
+f.g("litellm_mcp_tool_call_spend_metric", "counter", [({**mlb, "mcp_tool_name": t, "mcp_server_name": srv}, round(n * 0.002, 4)) for srv, t, n in MT if srv == "github"])
 f.save("litellm.txt")
 
 # Ray Serve
@@ -200,4 +204,153 @@ for n, v in [("kn_revision_pods_desired", 2), ("kn_revision_pods_requested", 2),
     f.g(n, "gauge", [({"k8s_namespace_name": "models", "kn_revision_name": r, "kn_service_name": s, "kn_configuration_name": s}, v) for r, s in K])
 f.g("kn_revision_request_concurrency", "gauge", [({"k8s_namespace_name": "models", "kn_revision_name": r, "kn_service_name": s, "kn_configuration_name": s}, 0) for r, s in K])
 f.save("knative_autoscaler.txt")
+
+# OpenTelemetry Go SDK + Prometheus exporter: every series carries the instrumentation scope.
+def scope(name, version=""):
+    return {"otel_scope_name": name, "otel_scope_schema_url": "", "otel_scope_version": version}
+
+
+GENAI_LAT = [0.01, 0.02, 0.04, 0.08, 0.16, 0.32, 0.64, 1.28, 2.56, 5.12, 10.24, 20.48, 40.96, 81.92]
+GENAI_TOK = [1, 4, 16, 64, 256, 1024, 4096, 16384, 65536, 262144, 1048576]
+TTFT_B = [0.001, 0.005, 0.01, 0.02, 0.04, 0.06, 0.08, 0.1, 0.25, 0.5, 0.75, 1.0, 2.5, 5.0, 7.5, 10.0, 15.0, 20.0, 30.0, 45.0, 60.0]
+TPOT_B = [0.01, 0.025, 0.05, 0.075, 0.1, 0.15, 0.2, 0.3, 0.4, 0.5, 0.75, 1.0, 2.5]
+MCP_B = [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10]
+OTEL_DEFAULT_B = [5, 10, 25, 50, 75, 100, 250, 500, 750, 1000, 2500, 5000, 7500, 10000]  # SDK default, "0" bucket left out (always 0 here)
+SEMCONV_MCP_B = [0.01, 0.02, 0.05, 0.1, 0.2, 0.5, 1, 2, 5, 10, 30, 60, 120, 300]
+
+# agentgateway (prometheus-client, prefix agentgateway_)
+f = F()
+RT = {"bind": "8080", "gateway": "agentgateway-system/agentgateway", "listener": "http", "route": "default/mcp", "route_rule": "unknown"}
+f.g("agentgateway_build_info", "gauge", [({"tag": "v1.2.0"}, 1)])
+f.g("agentgateway_config_synchronized", "gauge", [({}, 1)])
+REQS = [("mcp-tools", "mcp", "POST", "200", "Upstream", 9000), ("mcp-tools", "mcp", "POST", "401", "JwtAuth", 40),
+        ("openai", "llm", "POST", "200", "Upstream", 4200), ("openai", "llm", "POST", "429", "RateLimit", 25),
+        ("openai", "llm", "POST", "503", "NoHealthyBackend", 6), ("billing-agent", "a2a", "POST", "200", "Upstream", 700),
+        ("billing-agent", "a2a", "POST", "500", "Upstream", 4)]
+HL = lambda b, p, mt, st, r: {"backend": b, "protocol": p, "method": mt, "status": st, "reason": r, **RT}
+f.g("agentgateway_requests", "counter", [(HL(b, p, mt, st, r), n) for b, p, mt, st, r, n in REQS])
+f.h("agentgateway_request_duration_seconds", LAT, [(HL(b, p, mt, st, r), n, 0.4 if p == "mcp" else 3.5) for b, p, mt, st, r, n in REQS])
+for name, mean in [("agentgateway_request_processing_seconds", 0.0008), ("agentgateway_response_processing_seconds", 0.0004)]:
+    f.h(name, [0.0001, 0.0005, 0.001, 0.005, 0.01, 0.05, 0.1], [({"backend": b, **RT}, 9000, mean) for b in ("mcp-tools", "openai")])
+f.g("agentgateway_requests_active", "gauge", [({"backend": "mcp-tools"}, 6), ({"backend": "openai"}, 11), ({"backend": "billing-agent"}, 2)])
+f.g("agentgateway_upstream_connections_active", "gauge", [({"backend": "mcp-tools"}, 4), ({"backend": "openai"}, 8), ({"backend": "billing-agent"}, 1)])
+f.g("agentgateway_retries", "counter", [(HL("openai", "llm", "POST", "200", "Upstream"), 30)])
+f.g("agentgateway_requests_shed", "counter", [({"bind": "8080"}, 3)])
+f.g("agentgateway_downstream_connections_shed", "counter", [({"bind": "8080"}, 1)])
+TCP = {"bind": "8080", "gateway": RT["gateway"], "listener": "http"}
+f.g("agentgateway_downstream_connections", "counter", [({**TCP, "protocol": "HTTP"}, 3000), ({**TCP, "protocol": "HTTPS"}, 1200)])
+f.g("agentgateway_downstream_received_bytes", "counter", [({**TCP, "protocol": "HTTP"}, 90000000)])
+f.g("agentgateway_downstream_sent_bytes", "counter", [({**TCP, "protocol": "HTTP"}, 420000000)])
+f.h("agentgateway_upstream_connect_duration_seconds", [0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1], [({"transport": "plaintext"}, 2000, 0.004), ({"transport": "tls"}, 900, 0.03)])
+f.h("agentgateway_tls_handshake_duration_seconds", [0.0005, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1], [({**TCP, "protocol": "HTTPS"}, 1200, 0.008)])
+MCPS = [("initialize", "success", "unknown", "github", "unknown", 300), ("tools/list", "success", "unknown", "github", "unknown", 600),
+        ("tools/call", "success", "tool", "github", "create_issue", 1400), ("tools/call", "tool_error", "tool", "github", "create_issue", 30),
+        ("tools/call", "success", "tool", "kubernetes", "pods_list", 2600), ("tools/call", "gateway_error", "tool", "kubernetes", "pods_log", 12),
+        ("tools/call", "success", "tool", "fetch", "fetch", 900), ("resources/read", "success", "resource", "kubernetes", "k8s://events", 200),
+        ("prompts/get", "success", "prompt", "github", "review_pr", 60), ("tools/call", "protocol_error", "tool", "fetch", "fetch", 8)]
+f.g("agentgateway_mcp_requests", "counter", [({"method": mt, "outcome": o, "resource_type": rt, "server": srv, "resource": res, **RT}, n) for mt, o, rt, srv, res, n in MCPS])
+GL = lambda model: {"gen_ai_operation_name": "chat", "gen_ai_system": "openai", "gen_ai_request_model": model, "gen_ai_response_model": model + "-2024-08-06", **{**RT, "route": "default/llm"}}
+GM = [("gpt-4o", 1.0), ("gpt-4o-mini", 2.5)]
+f.h("agentgateway_gen_ai_client_token_usage", GENAI_TOK, [({"gen_ai_token_type": t, **GL(mo)}, int(2000 * k), mean) for mo, k in GM for t, mean in [("input", 900), ("output", 260), ("input_cache_read", 300)]])
+f.g("agentgateway_gen_ai_client_cost_usd", "counter", [(GL(mo), c) for mo, c in [("gpt-4o", 18.4), ("gpt-4o-mini", 2.1)]])
+f.h("agentgateway_gen_ai_server_request_duration", GENAI_LAT, [(GL(mo), int(2000 * k), 3.2) for mo, k in GM] + [({**GL(mo), "error_type": "_OTHER"}, int(25 * k), 0.4) for mo, k in GM])
+f.h("agentgateway_gen_ai_server_time_to_first_token", GENAI_LAT, [(GL(mo), int(1500 * k), 0.45) for mo, k in GM])
+f.h("agentgateway_gen_ai_server_time_per_output_token", GENAI_LAT, [(GL(mo), int(1500 * k), 0.02) for mo, k in GM])
+f.h("agentgateway_gen_ai_server_inter_chunk_latency", GENAI_LAT, [(GL(mo), int(1500 * k), 0.03) for mo, k in GM])
+f.g("agentgateway_guardrail_checks", "counter", [({"phase": ph, "action": a}, n) for ph, a, n in [("Request", "Allow", 4000), ("Request", "Reject", 35), ("Response", "Allow", 3900), ("Response", "Mask", 60)]])
+f.g("agentgateway_cost_catalog_lookups", "counter", [({"status": st, **GL(mo)}, n) for mo, _ in GM for st, n in [("found", 2000)]])
+f.save("agentgateway")
+
+# Envoy AI Gateway / Agent Router external processor (OTel -> Prometheus)
+f = F()
+SE = scope("envoyproxy/ai-gateway")
+EG = [("gpt-4o-mini", "openai", "default/openai", 1.0), ("claude-sonnet-4", "aws.bedrock", "default/bedrock", 0.5), ("llama-3.1-8b", "openai", "default/vllm", 1.6)]
+EL = lambda mo, pr, be, op="chat": {"gen_ai_backend": be, "gen_ai_operation_name": op, "gen_ai_original_model": mo, "gen_ai_provider_name": pr, "gen_ai_request_model": mo, "gen_ai_response_model": mo, **SE}
+f.h("gen_ai_server_request_duration_seconds", GENAI_LAT, [(EL(mo, pr, be), int(3000 * k), 2.8) for mo, pr, be, k in EG] + [({**EL(mo, pr, be), "error_type": "_OTHER"}, int(20 * k), 0.3) for mo, pr, be, k in EG] + [(EL("text-embedding-3-small", "openai", "default/openai", "embeddings"), 1200, 0.15)])
+f.h("gen_ai_server_time_to_first_token_seconds", TTFT_B, [(EL(mo, pr, be), int(2500 * k), 0.35) for mo, pr, be, k in EG])
+f.h("gen_ai_server_time_per_output_token_seconds", TPOT_B, [(EL(mo, pr, be), int(2500 * k), 0.022) for mo, pr, be, k in EG])
+f.h("gen_ai_client_token_usage", GENAI_TOK, [({**EL(mo, pr, be), "gen_ai_token_type": t}, int(3000 * k), mean) for mo, pr, be, k in EG for t, mean in [("input", 850), ("output", 240), ("cached_input", 310)]])
+MM = [("initialize", "success", 400), ("tools/list", "success", 900), ("tools/call", "success", 5200), ("tools/call", "error", 40), ("tools/call", "failed", 15), ("resources/read", "success", 300), ("notifications/initialized", "success", 400)]
+f.g("mcp_method_count", "counter", [({"mcp_backend": be, "mcp_method_name": mt, "status": st, **SE}, int(n * k)) for be, k in [("github", 0.6), ("kubernetes", 0.4)] for mt, st, n in MM])
+f.h("mcp_request_duration", MCP_B, [({"mcp_backend": be, **SE}, int(7000 * k), 0.12) for be, k in [("github", 0.6), ("kubernetes", 0.4)]] + [({"mcp_backend": "github", "error_type": e, **SE}, n, 0.02) for e, n in [("invalid_session_id", 12), ("unsupported_method", 4)]])
+f.g("mcp_capabilities_negotiated", "counter", [({"capability_side": side, "capability_type": c, **SE}, 400) for side, c in [("server", "tools"), ("server", "resources"), ("server", "prompts"), ("client", "sampling"), ("client", "roots")]])
+f.g("mcp_progress_notifications", "counter", [(SE, 90)])
+f.save("envoy_ai_gateway")
+
+# ToolHive MCP proxy, vMCP, rate limits, auth server (OTel -> Prometheus)
+f = F()
+ST_ = scope("github.com/stacklok/toolhive")
+TH = [("github", "streamable-http"), ("fetch", "stdio")]
+REQ_T = []
+for srv, tr in TH:
+    for mm, rid, sc, n in [("initialize", "", "200", 200), ("tools/list", "", "200", 500), ("tools/call", "create_issue" if srv == "github" else "fetch", "200", 3000),
+                           ("tools/call", "create_issue" if srv == "github" else "fetch", "500", 25), ("resources/read", "repo://readme", "200", 150)]:
+        REQ_T.append(({"mcp_method": mm, "mcp_resource_id": rid, "method": "POST", "server": srv, "status": "error" if int(sc) >= 400 else "success", "status_code": sc, "transport": tr, **ST_}, n if srv == "github" else n // 2))
+f.g("toolhive_mcp_requests", "counter", REQ_T)
+f.h("toolhive_mcp_request_duration_seconds", SEMCONV_MCP_B, [(l, n, 0.35 if l["mcp_method"] == "tools/call" else 0.04) for l, n in REQ_T])
+f.g("toolhive_mcp_tool_calls", "counter", [({"server": srv, "status": st, "tool": t, **ST_}, n) for srv, t in [("github", "create_issue"), ("github", "search_code"), ("fetch", "fetch")] for st, n in [("success", 1500), ("error", 12)]])
+f.g("toolhive_mcp_active_connections", "gauge", [({"connection_type": "sse", "server": "github", "transport": "streamable-http", **ST_}, 7), ({"connection_type": "sse", "server": "fetch", "transport": "stdio", **ST_}, 2)])
+f.h("mcp_server_operation_duration_seconds", SEMCONV_MCP_B, [({"gen_ai_operation_name": "execute_tool", "gen_ai_tool_name": t, "jsonrpc_protocol_version": "2.0", "mcp_method_name": "tools/call", "network_protocol_name": "http", "network_transport": "tcp", **ST_}, 1500, mean) for t, mean in [("create_issue", 0.6), ("search_code", 1.1), ("fetch", 0.3)]]
+    + [({"jsonrpc_protocol_version": "2.0", "mcp_method_name": mm, "network_protocol_name": "http", "network_transport": "tcp", **ST_}, n, 0.03) for mm, n in [("initialize", 300), ("tools/list", 750)]])
+f.g("toolhive_vmcp_backends_discovered", "gauge", [(ST_, 3)])
+VB = [("github", 1.0), ("fetch", 0.6), ("osv", 0.3)]
+VL = lambda w, a: {"action": a, "mcp_method_name": "tools/call" if a == "call_tool" else "tools/list", "mcp_protocol_revision": "2025-06-18", "target_base_url": f"http://{w}.toolhive:8080", "target_transport_type": "streamable-http", "target_workload_id": w, "target_workload_name": w, **ST_}
+f.g("toolhive_vmcp_backend_requests", "counter", [(VL(w, a), int(n * k)) for w, k in VB for a, n in [("call_tool", 2000), ("list_capabilities", 300)]])
+f.g("toolhive_vmcp_backend_errors", "counter", [(VL(w, "call_tool"), int(15 * k)) for w, k in VB])
+f.h("toolhive_vmcp_backend_requests_duration_seconds", SEMCONV_MCP_B, [(VL(w, "call_tool"), int(2000 * k), 0.4 + k / 2) for w, k in VB])
+f.h("mcp_client_operation_duration_seconds", SEMCONV_MCP_B, [({"mcp_method_name": mm, "network_transport": "tcp", **ST_}, n, mean) for mm, n, mean in [("tools/call", 3800, 0.6), ("tools/list", 570, 0.05)]])
+f.g("toolhive_vmcp_workflow_executions", "counter", [({"workflow_name": w, **ST_}, n) for w, n in [("triage-incident", 120), ("release-notes", 40)]])
+f.g("toolhive_vmcp_workflow_errors", "counter", [({"workflow_name": "triage-incident", **ST_}, 3)])
+f.h("toolhive_vmcp_workflow_duration_seconds", SEMCONV_MCP_B, [({"workflow_name": w, **ST_}, n, 8) for w, n in [("triage-incident", 120), ("release-notes", 40)]])
+f.g("toolhive_rate_limit_decisions", "counter", [({"decision": d_, "namespace": "toolhive", "operation_type": ot, "scope": sc, "server": "github", **ST_}, n) for d_, sc, ot, n in [("allowed", "shared", "server", 4000), ("allowed", "per_user", "tool", 3500), ("rejected", "per_user", "tool", 45)]])
+f.g("toolhive_rate_limit_redis_errors", "counter", [({"error_type": "timeout", "namespace": "toolhive", "server": "github", **ST_}, 2)])
+f.g("toolhive_rate_limit_fail_open", "counter", [({"namespace": "toolhive", "server": "github", **ST_}, 2)])
+f.h("toolhive_rate_limit_check_latency_seconds", [0.0005, 0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1], [({"namespace": "toolhive", "server": "github", **ST_}, 7500, 0.0018)])
+f.g("toolhive_authserver_dcr_clients", "gauge", [(ST_, 1840)])
+f.g("toolhive_authserver_dcr_capacity_rejections", "counter", [(ST_, 0)])
+f.save("toolhive")
+
+# Kuadrant MCP Gateway broker (OTel -> Prometheus)
+f = F()
+SK_ = scope("mcp-broker")
+KU = [("mcp-system/github", 41, 52000, 1.0), ("mcp-system/kubernetes", 23, 31000, 1.0), ("mcp-system/weather", 0, 0, 0.4)]
+f.g("mcp_broker_discovery", "counter", [({"server_name": s_, "status": st, **SK_}, int(n * k)) for s_, t, b, k in KU for st, n in [("success", 600 if t else 50), ("failure", 2 if t else 300)]])
+f.h("mcp_broker_discovery_duration_seconds", OTEL_DEFAULT_B, [({"server_name": s_, **SK_}, 600, 0.08 if t else 2.0) for s_, t, b, k in KU])
+f.g("mcp_broker_tools_discovered", "gauge", [({"server_name": s_, **SK_}, t) for s_, t, b, k in KU])
+f.g("mcp_broker_tools_list_response_bytes", "gauge", [({"server_name": s_, **SK_}, b) for s_, t, b, k in KU])
+f.g("mcp_broker_upstream_connection_failures", "counter", [({"server_name": s_, **SK_}, 2 if t else 300) for s_, t, b, k in KU])
+f.g("target_info", "gauge", [({"service_name": "mcp-broker-router", "service_version": "v0.6.0"}, 1)])
+f.save("kuadrant_mcp_gateway")
+
+# containers/kubernetes-mcp-server (OTel -> Prometheus)
+f = F()
+SKM = scope("k8s-mcp-server")
+KT = [("pods_list", 2200, 0.25), ("pods_log", 900, 0.8), ("resources_get", 1300, 0.12), ("events_list", 700, 0.3), ("helm_list", 120, 1.4)]
+f.g("k8s_mcp_tool_calls", "counter", [({"tool_name": t, **SKM}, n) for t, n, _ in KT])
+f.g("k8s_mcp_tool_errors", "counter", [({"tool_name": t, **SKM}, max(1, n // 60)) for t, n, _ in KT])
+f.h("k8s_mcp_tool_duration_seconds", OTEL_DEFAULT_B, [({"tool_name": t, **SKM}, n, mean) for t, n, mean in KT])
+f.g("k8s_mcp_http_requests", "counter", [({"http_request_method": mt, "http_response_status_class": sc, "url_path": pth, **SKM}, n) for mt, pth, sc, n in [("POST", "/mcp", "2xx", 6000), ("POST", "/mcp", "4xx", 30), ("POST", "/mcp", "5xx", 4), ("GET", "/healthz", "2xx", 2000), ("GET", "/metrics", "2xx", 700)]])
+f.g("k8s_mcp_requests_in_flight", "gauge", [({"mcp_method_name": mm, **SKM}, v_) for mm, v_ in [("tools/call", 3), ("tools/list", 0), ("initialize", 0)]])
+f.g("k8s_mcp_server_info", "gauge", [({"go_version": "go1.25.4", "version": "v0.0.60", **SKM}, 1)])
+f.save("kubernetes_mcp_server")
+
+# GenAI semantic conventions received over OTLP (names as Prometheus translates them)
+f = F()
+GO = [("chat", "openai", "gpt-4o-mini", 1.0), ("chat", "anthropic", "claude-sonnet-4", 0.5), ("embeddings", "openai", "text-embedding-3-small", 0.8)]
+GOL = lambda op, pr, mo: {"gen_ai_operation_name": op, "gen_ai_provider_name": pr, "gen_ai_request_model": mo, "gen_ai_response_model": mo, "server_address": "api." + pr.split(".")[0] + ".com", "server_port": "443"}
+f.h("gen_ai_client_operation_duration_seconds", GENAI_LAT, [(GOL(op, pr, mo), int(2500 * k), 0.3 if op == "embeddings" else 3.4) for op, pr, mo, k in GO] + [({**GOL(op, pr, mo), "error_type": "RateLimitError"}, int(18 * k), 0.2) for op, pr, mo, k in GO])
+f.h("gen_ai_client_token_usage", GENAI_TOK, [({**GOL(op, pr, mo), "gen_ai_token_type": t}, int(2500 * k), mean) for op, pr, mo, k in GO for t, mean in ([("input", 700), ("output", 220)] if op == "chat" else [("input", 400)])])
+f.h("gen_ai_server_request_duration_seconds", GENAI_LAT, [(GOL("chat", "openai", "meta-llama/Llama-3.1-8B-Instruct"), 4000, 2.2)])
+f.h("gen_ai_server_time_to_first_token_seconds", GENAI_LAT, [(GOL("chat", "openai", "meta-llama/Llama-3.1-8B-Instruct"), 4000, 0.21)])
+f.h("gen_ai_server_time_per_output_token_seconds", GENAI_LAT, [(GOL("chat", "openai", "meta-llama/Llama-3.1-8B-Instruct"), 4000, 0.018)])
+AG = [("k8s-agent", 1.0), ("helm-agent", 0.4)]
+AGL = lambda a: {"gen_ai_agent_name": a, "gen_ai_operation_name": "invoke_agent", "gen_ai_provider_name": "anthropic", "gen_ai_request_model": "claude-sonnet-4"}
+f.h("gen_ai_invoke_agent_duration_seconds", GENAI_LAT, [(AGL(a), int(400 * k), 18) for a, k in AG] + [({**AGL(a), "error_type": "_OTHER"}, int(6 * k), 4) for a, k in AG])
+f.h("gen_ai_invoke_agent_inference_calls", [1, 2, 4, 8, 16, 32, 64, 128], [(AGL(a), int(400 * k), 5) for a, k in AG])
+f.h("gen_ai_invoke_agent_tool_calls", [1, 2, 4, 8, 16, 32, 64, 128], [(AGL(a), int(400 * k), 7) for a, k in AG])
+f.h("gen_ai_execute_tool_duration_seconds", GENAI_LAT, [({"gen_ai_operation_name": "execute_tool", "gen_ai_tool_name": t}, n, mean) for t, n, mean in [("k8s_get_resources", 1800, 0.4), ("k8s_get_pod_logs", 700, 1.1), ("helm_list_releases", 300, 0.9)]])
+for name, n in [("gen_ai_client_inference_usage_input_tokens", 4200000), ("gen_ai_client_inference_usage_output_tokens", 610000), ("gen_ai_client_inference_usage_cache_read_input_tokens", 2900000)]:
+    f.g(name, "counter", [({"gen_ai_operation_name": "chat", "gen_ai_provider_name": "anthropic", "gen_ai_request_model": "claude-sonnet-4", "gen_ai_token_modality": "text"}, n)])
+f.h("mcp_client_operation_duration_seconds", SEMCONV_MCP_B, [({"mcp_method_name": mm, "network_transport": "tcp"}, n, mean) for mm, n, mean in [("tools/call", 2800, 0.5), ("tools/list", 400, 0.04)]])
+f.save("genai_otel")
 print("ok")

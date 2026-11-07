@@ -208,3 +208,13 @@ litellm_remaining_team_budget_metric{team="t1",team_alias="platform"} 412.5
 # HELP litellm_remaining_api_key_budget_metric synthetic
 # TYPE litellm_remaining_api_key_budget_metric gauge
 litellm_remaining_api_key_budget_metric{hashed_api_key="88dc28d0f030c55ed4ab77ed8faf098196cb1c05df778539800c9f1243fe6b4b",api_key_alias="svc-chatbot"} 88.2
+# HELP litellm_mcp_tool_calls_total synthetic
+# TYPE litellm_mcp_tool_calls_total counter
+litellm_mcp_tool_calls_total{hashed_api_key="88dc28d0f030c55ed4ab77ed8faf098196cb1c05df778539800c9f1243fe6b4b",api_key_alias="svc-chatbot",team="t1",team_alias="platform",user="",end_user="",mcp_tool_name="create_issue",mcp_server_name="github"} 120
+litellm_mcp_tool_calls_total{hashed_api_key="88dc28d0f030c55ed4ab77ed8faf098196cb1c05df778539800c9f1243fe6b4b",api_key_alias="svc-chatbot",team="t1",team_alias="platform",user="",end_user="",mcp_tool_name="search_code",mcp_server_name="github"} 340
+litellm_mcp_tool_calls_total{hashed_api_key="88dc28d0f030c55ed4ab77ed8faf098196cb1c05df778539800c9f1243fe6b4b",api_key_alias="svc-chatbot",team="t1",team_alias="platform",user="",end_user="",mcp_tool_name="pods_list",mcp_server_name="kubernetes"} 510
+litellm_mcp_tool_calls_total{hashed_api_key="88dc28d0f030c55ed4ab77ed8faf098196cb1c05df778539800c9f1243fe6b4b",api_key_alias="svc-chatbot",team="t1",team_alias="platform",user="",end_user="",mcp_tool_name="get_issue",mcp_server_name="jira"} 80
+# HELP litellm_mcp_tool_call_spend_metric synthetic
+# TYPE litellm_mcp_tool_call_spend_metric counter
+litellm_mcp_tool_call_spend_metric_total{hashed_api_key="88dc28d0f030c55ed4ab77ed8faf098196cb1c05df778539800c9f1243fe6b4b",api_key_alias="svc-chatbot",team="t1",team_alias="platform",user="",end_user="",mcp_tool_name="create_issue",mcp_server_name="github"} 0.24
+litellm_mcp_tool_call_spend_metric_total{hashed_api_key="88dc28d0f030c55ed4ab77ed8faf098196cb1c05df778539800c9f1243fe6b4b",api_key_alias="svc-chatbot",team="t1",team_alias="platform",user="",end_user="",mcp_tool_name="search_code",mcp_server_name="github"} 0.68

@@ -1,0 +1,116 @@
+# HELP k8s_mcp_tool_calls synthetic
+# TYPE k8s_mcp_tool_calls counter
+k8s_mcp_tool_calls_total{tool_name="pods_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 2200
+k8s_mcp_tool_calls_total{tool_name="pods_log",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 900
+k8s_mcp_tool_calls_total{tool_name="resources_get",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 1300
+k8s_mcp_tool_calls_total{tool_name="events_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 700
+k8s_mcp_tool_calls_total{tool_name="helm_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 120
+# HELP k8s_mcp_tool_errors synthetic
+# TYPE k8s_mcp_tool_errors counter
+k8s_mcp_tool_errors_total{tool_name="pods_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 36
+k8s_mcp_tool_errors_total{tool_name="pods_log",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 15
+k8s_mcp_tool_errors_total{tool_name="resources_get",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 21
+k8s_mcp_tool_errors_total{tool_name="events_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 11
+k8s_mcp_tool_errors_total{tool_name="helm_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 2
+# HELP k8s_mcp_tool_duration_seconds synthetic
+# TYPE k8s_mcp_tool_duration_seconds histogram
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="5"} 2199
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="10"} 2199
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="25"} 2199
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="50"} 2199
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="75"} 2199
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="100"} 2199
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="250"} 2200
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="500"} 2200
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="750"} 2200
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="1000"} 2200
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="2500"} 2200
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="5000"} 2200
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="7500"} 2200
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="10000"} 2200
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="+Inf"} 2200
+k8s_mcp_tool_duration_seconds_sum{tool_name="pods_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 550.0
+k8s_mcp_tool_duration_seconds_count{tool_name="pods_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 2200
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_log",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="5"} 896
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_log",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="10"} 899
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_log",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="25"} 899
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_log",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="50"} 899
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_log",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="75"} 899
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_log",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="100"} 899
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_log",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="250"} 899
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_log",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="500"} 900
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_log",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="750"} 900
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_log",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="1000"} 900
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_log",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="2500"} 900
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_log",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="5000"} 900
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_log",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="7500"} 900
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_log",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="10000"} 900
+k8s_mcp_tool_duration_seconds_bucket{tool_name="pods_log",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="+Inf"} 900
+k8s_mcp_tool_duration_seconds_sum{tool_name="pods_log",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 720.0
+k8s_mcp_tool_duration_seconds_count{tool_name="pods_log",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 900
+k8s_mcp_tool_duration_seconds_bucket{tool_name="resources_get",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="5"} 1299
+k8s_mcp_tool_duration_seconds_bucket{tool_name="resources_get",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="10"} 1299
+k8s_mcp_tool_duration_seconds_bucket{tool_name="resources_get",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="25"} 1299
+k8s_mcp_tool_duration_seconds_bucket{tool_name="resources_get",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="50"} 1299
+k8s_mcp_tool_duration_seconds_bucket{tool_name="resources_get",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="75"} 1300
+k8s_mcp_tool_duration_seconds_bucket{tool_name="resources_get",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="100"} 1300
+k8s_mcp_tool_duration_seconds_bucket{tool_name="resources_get",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="250"} 1300
+k8s_mcp_tool_duration_seconds_bucket{tool_name="resources_get",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="500"} 1300
+k8s_mcp_tool_duration_seconds_bucket{tool_name="resources_get",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="750"} 1300
+k8s_mcp_tool_duration_seconds_bucket{tool_name="resources_get",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="1000"} 1300
+k8s_mcp_tool_duration_seconds_bucket{tool_name="resources_get",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="2500"} 1300
+k8s_mcp_tool_duration_seconds_bucket{tool_name="resources_get",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="5000"} 1300
+k8s_mcp_tool_duration_seconds_bucket{tool_name="resources_get",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="7500"} 1300
+k8s_mcp_tool_duration_seconds_bucket{tool_name="resources_get",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="10000"} 1300
+k8s_mcp_tool_duration_seconds_bucket{tool_name="resources_get",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="+Inf"} 1300
+k8s_mcp_tool_duration_seconds_sum{tool_name="resources_get",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 156.0
+k8s_mcp_tool_duration_seconds_count{tool_name="resources_get",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 1300
+k8s_mcp_tool_duration_seconds_bucket{tool_name="events_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="5"} 699
+k8s_mcp_tool_duration_seconds_bucket{tool_name="events_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="10"} 699
+k8s_mcp_tool_duration_seconds_bucket{tool_name="events_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="25"} 699
+k8s_mcp_tool_duration_seconds_bucket{tool_name="events_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="50"} 699
+k8s_mcp_tool_duration_seconds_bucket{tool_name="events_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="75"} 699
+k8s_mcp_tool_duration_seconds_bucket{tool_name="events_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="100"} 699
+k8s_mcp_tool_duration_seconds_bucket{tool_name="events_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="250"} 700
+k8s_mcp_tool_duration_seconds_bucket{tool_name="events_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="500"} 700
+k8s_mcp_tool_duration_seconds_bucket{tool_name="events_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="750"} 700
+k8s_mcp_tool_duration_seconds_bucket{tool_name="events_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="1000"} 700
+k8s_mcp_tool_duration_seconds_bucket{tool_name="events_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="2500"} 700
+k8s_mcp_tool_duration_seconds_bucket{tool_name="events_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="5000"} 700
+k8s_mcp_tool_duration_seconds_bucket{tool_name="events_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="7500"} 700
+k8s_mcp_tool_duration_seconds_bucket{tool_name="events_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="10000"} 700
+k8s_mcp_tool_duration_seconds_bucket{tool_name="events_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="+Inf"} 700
+k8s_mcp_tool_duration_seconds_sum{tool_name="events_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 210.0
+k8s_mcp_tool_duration_seconds_count{tool_name="events_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 700
+k8s_mcp_tool_duration_seconds_bucket{tool_name="helm_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="5"} 117
+k8s_mcp_tool_duration_seconds_bucket{tool_name="helm_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="10"} 119
+k8s_mcp_tool_duration_seconds_bucket{tool_name="helm_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="25"} 119
+k8s_mcp_tool_duration_seconds_bucket{tool_name="helm_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="50"} 119
+k8s_mcp_tool_duration_seconds_bucket{tool_name="helm_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="75"} 119
+k8s_mcp_tool_duration_seconds_bucket{tool_name="helm_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="100"} 119
+k8s_mcp_tool_duration_seconds_bucket{tool_name="helm_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="250"} 119
+k8s_mcp_tool_duration_seconds_bucket{tool_name="helm_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="500"} 119
+k8s_mcp_tool_duration_seconds_bucket{tool_name="helm_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="750"} 119
+k8s_mcp_tool_duration_seconds_bucket{tool_name="helm_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="1000"} 120
+k8s_mcp_tool_duration_seconds_bucket{tool_name="helm_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="2500"} 120
+k8s_mcp_tool_duration_seconds_bucket{tool_name="helm_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="5000"} 120
+k8s_mcp_tool_duration_seconds_bucket{tool_name="helm_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="7500"} 120
+k8s_mcp_tool_duration_seconds_bucket{tool_name="helm_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="10000"} 120
+k8s_mcp_tool_duration_seconds_bucket{tool_name="helm_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version="",le="+Inf"} 120
+k8s_mcp_tool_duration_seconds_sum{tool_name="helm_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 168.0
+k8s_mcp_tool_duration_seconds_count{tool_name="helm_list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 120
+# HELP k8s_mcp_http_requests synthetic
+# TYPE k8s_mcp_http_requests counter
+k8s_mcp_http_requests_total{http_request_method="POST",http_response_status_class="2xx",url_path="/mcp",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 6000
+k8s_mcp_http_requests_total{http_request_method="POST",http_response_status_class="4xx",url_path="/mcp",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 30
+k8s_mcp_http_requests_total{http_request_method="POST",http_response_status_class="5xx",url_path="/mcp",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 4
+k8s_mcp_http_requests_total{http_request_method="GET",http_response_status_class="2xx",url_path="/healthz",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 2000
+k8s_mcp_http_requests_total{http_request_method="GET",http_response_status_class="2xx",url_path="/metrics",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 700
+# HELP k8s_mcp_requests_in_flight synthetic
+# TYPE k8s_mcp_requests_in_flight gauge
+k8s_mcp_requests_in_flight{mcp_method_name="tools/call",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 3
+k8s_mcp_requests_in_flight{mcp_method_name="tools/list",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 0
+k8s_mcp_requests_in_flight{mcp_method_name="initialize",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 0
+# HELP k8s_mcp_server_info synthetic
+# TYPE k8s_mcp_server_info gauge
+k8s_mcp_server_info{go_version="go1.25.4",version="v0.0.60",otel_scope_name="k8s-mcp-server",otel_scope_schema_url="",otel_scope_version=""} 1

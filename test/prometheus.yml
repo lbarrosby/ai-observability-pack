@@ -125,3 +125,45 @@ scrape_configs:
         labels:
           namespace: vector-db
           pod: weaviate-0
+  - job_name: agentgateway
+    metrics_path: /agentgateway/metrics
+    static_configs:
+      - targets: ['127.0.0.1:18998']
+        labels:
+          namespace: agentgateway-system
+          pod: agentgateway-7d9f8-0
+  - job_name: envoy_ai_gateway
+    metrics_path: /envoy_ai_gateway/metrics
+    static_configs:
+      - targets: ['127.0.0.1:18998']
+        labels:
+          namespace: envoy-gateway-system
+          pod: envoy-ai-gateway-basic-0
+  - job_name: toolhive
+    metrics_path: /toolhive/metrics
+    static_configs:
+      - targets: ['127.0.0.1:18998']
+        labels:
+          namespace: toolhive
+          pod: github-mcp-0
+  - job_name: kuadrant_mcp_gateway
+    metrics_path: /kuadrant_mcp_gateway/metrics
+    static_configs:
+      - targets: ['127.0.0.1:18998']
+        labels:
+          namespace: mcp-system
+          pod: mcp-gateway-broker-router-0
+  - job_name: kubernetes_mcp_server
+    metrics_path: /kubernetes_mcp_server/metrics
+    static_configs:
+      - targets: ['127.0.0.1:18998']
+        labels:
+          namespace: mcp
+          pod: kubernetes-mcp-server-0
+  - job_name: genai_otel
+    metrics_path: /genai_otel/metrics
+    static_configs:
+      - targets: ['127.0.0.1:18998']
+        labels:
+          namespace: agents
+          pod: k8s-agent-0
